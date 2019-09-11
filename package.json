@@ -1,0 +1,64 @@
+{
+    "name": "react-native-blueprint",
+    "version": "0.1.0-pre.0",
+    "description": "Developer tools that helps create pixel perfect apps.",
+    "main": "lib",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nidorx/react-native-blueprint.git"
+    },
+    "scripts": {
+        "build-ts": "tsc -p tsconfig-lib.json",
+        "publish-lib": "node v-release.js && node publish.js",
+        "publish-lib-snapshot": "node v-snapshot.js &&  node publish.js",
+        "test": "jest",
+        "lint": "eslint ."
+    },
+    "author": "Alex Rodin <contato@alexrodin.info>",
+    "license": "MIT",
+    "devDependencies": {
+        "@babel/core": "7.6.0",
+        "@babel/runtime": "7.6.0",
+        "@react-native-community/eslint-config": "0.0.5",
+        "eslint": "6.3.0",
+        "metro-react-native-babel-preset": "0.54.1",
+        "ncp": "^2.0.0",
+        "react": "16.8.6",
+        "react-native": "0.60.5",
+        "rimraf": "^3.0.0",
+        "semver": "^6.0.0",
+        "typescript": "3.6.2",
+        "@types/react": "16.9.2",
+        "@types/react-native": "0.60.12"
+    },
+    "peerDependencies": {
+        "react": "^16.8.3",
+        "react-native": "^0.60.0"
+    },
+    "keywords": [
+        "ruler",
+        "pixel perfect",
+        "pixel-perfect",
+        "grid",
+        "guides",
+        "designer",
+        "mobile",
+        "ui",
+        "ux",
+        "dev tools",
+        "developer tools",
+        "react native",
+        "react native pixel",
+        "react native pixel perfect",
+        "react native pixel-perfect",
+        "react native grid",
+        "react native guides",
+        "react native dev tools",
+        "react native developer tools",
+        "react native ui",
+        "react native ux"
+    ],
+    "dependencies": {
+        "@react-native-community/cameraroll": "^1.2.1"
+    }
+}
