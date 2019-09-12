@@ -1,7 +1,7 @@
 {
     "name": "react-native-blueprint",
     "version": "0.1.0-pre.0",
-    "description": "Developer tools that helps create pixel perfect apps.",
+    "description": "To develop pixel perfect apps.",
     "main": "lib",
     "repository": {
         "type": "git",
