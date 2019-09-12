@@ -12,7 +12,7 @@ export default class App extends React.PureComponent {
                 //     uri: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png'
                 // }}
             >
-                <StatusBar backgroundColor={'#FFF'} barStyle="dark-content"/>
+                <StatusBar backgroundColor={'transparent'} translucent={true} barStyle="dark-content"/>
                 <Text>
                     {'React Native Blueprint'}
                 </Text>
