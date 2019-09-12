@@ -58,7 +58,5 @@
         "react native ui",
         "react native ux"
     ],
-    "dependencies": {
-        "@react-native-community/cameraroll": "^1.2.1"
-    }
+    "dependencies": {}
 }
