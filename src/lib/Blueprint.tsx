@@ -354,8 +354,8 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                         width: base,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: "#4affff66",
-                        opacity: 0
+                        backgroundColor: "#18A0FB33",
+                        // opacity: 0
                     }}
                 >
                     <View
@@ -364,17 +364,18 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                 ? {
                                     height: base,
                                     width: base,
-                                    borderColor: '#000',
-                                    borderRightWidth: 1,
-                                    borderLeftWidth: 1
+                                    borderColor: '#18A0FB',
+                                    borderRightWidth: 2,
+                                    borderLeftWidth: 2
                                 }
                                 : (
                                     this.state.align === 'center'
                                         ? {
                                             height: base,
-                                            width: 1,
+                                            width: 2,
+                                            // left: -1,
                                             alignSelf: 'center',
-                                            backgroundColor: '#000',
+                                            backgroundColor: '#18A0FB',
                                         }
                                         : {
                                             opacity: 0
@@ -401,8 +402,8 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                         height: extra,
                         width: extra,
                         borderRadius: extra,
-                        backgroundColor: MAGENTA,
-                        opacity: 0
+                        backgroundColor: '#18A0FB33',
+                        // opacity: 0
                     }}
                 />
             </View>
