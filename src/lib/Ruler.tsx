@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-    Animated,
-    Dimensions,
-    PanResponder,
-    PanResponderInstance,
-    PixelRatio,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from 'react-native'
+import {Animated, Dimensions, PanResponder, PanResponderInstance, PixelRatio, StyleSheet, View,} from 'react-native'
 
 
 const pixelRatio = PixelRatio.get();
@@ -476,6 +467,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                     heightInit = height;
                 },
                 onPanResponderMove: (event, gestureState) => {
+                    const maxWidth = (screenWidth - left);
                     const maxBottom = (topInit + heightInit) - MIN_SIZE;
 
                     top = Math.max(0, Math.min(maxBottom, (topInit + gestureState.dy * this.sensitivity)));
@@ -484,7 +476,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                     height = maxBottom - top + MIN_SIZE;
                     valueHeigth.setValue(height);
 
-                    width = Math.max(MIN_SIZE, Math.min(screenWidth, (widthInit + gestureState.dx * this.sensitivity)));
+                    width = Math.max(MIN_SIZE, Math.min(maxWidth, (widthInit + gestureState.dx * this.sensitivity)));
                     valueWidth.setValue(width);
 
                     this.updateTextInformation();
@@ -500,6 +492,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                 },
                 onPanResponderMove: (event, gestureState) => {
                     const maxRight = (leftInit + widthInit) - MIN_SIZE;
+                    const maxHeight = (screenHeight - top);
 
                     left = Math.max(0, Math.min(maxRight, (leftInit + gestureState.dx * this.sensitivity)));
                     valueLeft.setValue(left);
@@ -507,7 +500,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                     width = maxRight - left + MIN_SIZE;
                     valueWidth.setValue(width);
 
-                    height = Math.max(MIN_SIZE, Math.min(screenHeight, (heightInit + gestureState.dy * this.sensitivity)));
+                    height = Math.max(MIN_SIZE, Math.min(maxHeight, (heightInit + gestureState.dy * this.sensitivity)));
                     valueHeigth.setValue(height);
 
                     this.updateTextInformation();
@@ -521,10 +514,13 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                     heightInit = height;
                 },
                 onPanResponderMove: (event, gestureState) => {
-                    width = Math.max(MIN_SIZE, Math.min(screenWidth, (widthInit + gestureState.dx * this.sensitivity)));
+                    const maxWidth = (screenWidth - left);
+                    const maxHeight = (screenHeight - top);
+
+                    width = Math.max(MIN_SIZE, Math.min(maxWidth, (widthInit + gestureState.dx * this.sensitivity)));
                     valueWidth.setValue(width);
 
-                    height = Math.max(MIN_SIZE, Math.min(screenHeight, (heightInit + gestureState.dy * this.sensitivity)));
+                    height = Math.max(MIN_SIZE, Math.min(maxHeight, (heightInit + gestureState.dy * this.sensitivity)));
                     valueHeigth.setValue(height);
 
                     this.updateTextInformation();
@@ -640,8 +636,8 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                 {
                                     position: 'absolute',
                                     borderColor: color,
-                                    height: screenHeight,
-                                    top: -screenHeight,
+                                    height: screenHeight * 1.5,
+                                    top: -(screenHeight * 1.5),
                                     borderRightWidth: 1,
                                     transform: [
                                         {translateY: ruler.valueTop}
@@ -658,7 +654,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                 {
                                     position: 'absolute',
                                     borderColor: color,
-                                    height: screenHeight,
+                                    height: screenHeight * 1.5,
                                     top: 0,
                                     borderRightWidth: 1,
                                     transform: [
@@ -689,8 +685,8 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                 {
                                     position: 'absolute',
                                     borderColor: color,
-                                    width: screenWidth,
-                                    left: -screenWidth,
+                                    width: screenWidth * 1.5,
+                                    left: -(screenWidth * 1.5),
                                     borderTopWidth: 1,
                                     transform: [
                                         {translateX: ruler.valueLeft}
@@ -707,7 +703,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                 {
                                     position: 'absolute',
                                     borderColor: color,
-                                    width: screenWidth,
+                                    width: screenWidth * 1.5,
                                     left: 0,
                                     borderTopWidth: 1,
                                     transform: [
@@ -718,7 +714,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         }
                     />
                 </Animated.View>
-
 
                 {/*Side Left*/}
                 <Animated.View
@@ -954,8 +949,8 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                     {
                                         translateY: Animated.subtract(
                                             ruler.valueTop.interpolate({
-                                                inputRange: [0, 28, screenHeight],
-                                                outputRange: [-15, 0, screenHeight / 2]
+                                                inputRange: [0, 27, screenHeight],
+                                                outputRange: [-27, 0, screenHeight / 2]
                                             }),
                                             ruler.valueWidth.interpolate({
                                                 inputRange: [60, 65],
@@ -984,8 +979,8 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                     {
                                         translateY: Animated.subtract(
                                             ruler.valueBottom.interpolate({
-                                                inputRange: [0, screenHeight - 30, screenHeight],
-                                                outputRange: [screenHeight / 2, screenHeight - 15, screenHeight + 15]
+                                                inputRange: [0, screenHeight - 27, screenHeight],
+                                                outputRange: [screenHeight / 2, screenHeight - 11, screenHeight + 15]
                                             }),
                                             ruler.valueWidth.interpolate({
                                                 inputRange: [60, 65],
@@ -1014,8 +1009,8 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                                     {
                                         translateY: Animated.subtract(
                                             ruler.valueTop.interpolate({
-                                                inputRange: [0, 15, screenHeight],
-                                                outputRange: [-20, 0, screenHeight - 15]
+                                                inputRange: [0, screenHeight],
+                                                outputRange: [-14, screenHeight - 15]
                                             }),
                                             ruler.valueWidth.interpolate({
                                                 inputRange: [60, 65],

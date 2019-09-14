@@ -4,8 +4,8 @@ import {
     Dimensions,
     Image,
     ImageRequireSource,
-    ImageURISource, PanResponder,
-    PixelRatio,
+    ImageURISource,
+    PanResponder,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -14,6 +14,8 @@ import {
 import {animateGenericNative} from "./Utils";
 import Ruler from "./Ruler";
 import Grid, {GridLines, Guides} from "./Grid";
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 const tiny = 8;
 const small = 16;
@@ -69,11 +71,21 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
         photos: []
     };
 
+    private interacting = false;
+
     private animatedZoom = new Animated.Value(0);
 
     private animatedZoomSlideX = new Animated.Value(0);
 
     private animatedZoomSlideY = new Animated.Value(0);
+
+    private animatedVisibility = new Animated.Value(0);
+
+    private visible = false;
+
+    private ruler?: Ruler;
+
+    private timeout: any;
 
     private x = 0;
     private y = 0;
@@ -85,10 +97,15 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
     private panSliderZoom = PanResponder.create({
         onPanResponderGrant: () => {
             this.zInit = this.z;
+            this.interacting = true;
         },
         onPanResponderMove: (event, gestureState) => {
             this.z = Math.max(0, Math.min(MAX_ZOOM, (this.zInit + gestureState.dx * 0.8)));
             this.animatedZoom.setValue(this.z);
+        },
+        onPanResponderEnd: e => {
+            this.interacting = false;
+            this.hideSchedule();
         },
         onStartShouldSetPanResponder: (event, gestureState) => true,
     });
@@ -97,24 +114,26 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
         onPanResponderGrant: () => {
             this.xInit = this.x;
             this.yInit = this.y;
+            this.interacting = true;
         },
         onPanResponderMove: (event, gestureState) => {
-            this.x = Math.max(-(screenWidth / 2), Math.min((screenWidth / 2), (this.xInit + gestureState.dx)));
+            // The higher the zoom, the slower the drag speed
+            const speedMax = 1;
+            const speedMin = 0.5;
+            const speed = (this.z) * (speedMin - speedMax) / (MAX_ZOOM) + speedMax;
+
+            this.x = Math.max(-(screenWidth / 2), Math.min((screenWidth / 2), (this.xInit + gestureState.dx * speed)));
             this.animatedZoomSlideX.setValue(this.x);
 
-            this.y = Math.max(-(screenHeight / 2), Math.min((screenHeight / 2), (this.yInit + gestureState.dy)));
+            this.y = Math.max(-(screenHeight / 2), Math.min((screenHeight / 2), (this.yInit + gestureState.dy * speed)));
             this.animatedZoomSlideY.setValue(this.y);
+        },
+        onPanResponderEnd: e => {
+            this.interacting = false;
+            this.hideSchedule();
         },
         onStartShouldSetPanResponder: (event, gestureState) => true,
     });
-
-    private animatedVisibility = new Animated.Value(0);
-
-    private visible = true;
-
-    private ruler?: Ruler;
-
-    private timeout: any;
 
     /**
      * Schedule to hide Buttons after 4 seconds
@@ -122,6 +141,10 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
     private hideSchedule = () => {
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
+            if (this.interacting) {
+                // re schedule
+                return this.hideSchedule();
+            }
             this.visible = false;
             animateGenericNative(this.animatedVisibility, 0);
         }, 4000);
@@ -257,31 +280,239 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                 </Animated.View>
 
 
+                {/*GUID*/}
+
                 <Animated.View
                     style={[
+                        StyleSheet.absoluteFill,
                         {
-                            position: 'absolute',
-                            left: 0,
-                            top: 0,
-                            bottom: large,
-                            justifyContent: 'flex-end',
-                            alignItems: 'flex-start',
                             opacity: this.animatedVisibility
                         }
                     ]}
                     pointerEvents={'box-none'}
                 >
-                    {/*Zoom*/}
-                    <Animated.View
+
+
+                    {/*Logo*/}
+                    <TouchableOpacity
+                        onPress={event => {
+                            clearTimeout(this.timeout);
+                            if (this.visible) {
+                                this.visible = false;
+                                animateGenericNative(this.animatedVisibility, 0);
+                            } else {
+                                this.visible = true;
+                                this.hideSchedule();
+                                animateGenericNative(this.animatedVisibility, 1);
+                            }
+                        }}
                         style={{
+                            position: 'absolute',
+                            left: 0,
+                            bottom: large,
+                            height: extra,
+                            width: extra,
+                            marginLeft: tiny,
+                            borderRadius: extra,
+                            backgroundColor: '#18A0FB33',
+                        }}
+                    >
+                        <Image
+                            source={require('./../assets/logo.png')}
+                            style={{
+                                width: extra,
+                                height: extra,
+                                resizeMode: 'stretch'
+                            }}
+                            width={extra}
+                            height={extra}
+                        />
+                    </TouchableOpacity>
+
+                    {/*Grid*/}
+                    <AnimatedTouchableOpacity
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            bottom: large + extra + tiny,
                             flexDirection: 'row',
                             alignItems: 'center',
-                            marginBottom: tiny,
+                            height: large,
+                            width: large,
+                            borderRadius: large,
+                            justifyContent: 'center',
+                            borderColor: '#2C2C2C33',
+                            borderWidth: 1,
                             transform: [
                                 {
                                     translateX: this.animatedVisibility.interpolate({
                                         inputRange: [0, 1],
-                                        outputRange: [-(large + extra * 2 + tiny), small]
+                                        outputRange: [-large, small]
+                                    })
+                                }
+                            ]
+                        }}
+                        onPress={() => {
+
+                            const OPTIONS = ['side', 'center', 'left', 'right', 'hidden'];
+                            let index = OPTIONS.indexOf(this.state.gridAlign);
+                            let newPosition = OPTIONS[index + 1] || 'side';
+
+                            this.setState({
+                                gridAlign: newPosition as any
+                            });
+
+                            this.hideSchedule();
+                        }}
+                    >
+                        <View
+                            style={
+                                this.state.gridAlign === 'center'
+                                    ? {
+                                        height: small,
+                                        width: 2,
+                                        alignSelf: 'center',
+                                        backgroundColor: '#18A0FB',
+                                    }
+                                    : (
+                                        this.state.gridAlign === 'hidden'
+                                            ? {
+
+                                                opacity: 0
+
+                                            }
+                                            : {
+                                                height: small,
+                                                width: small,
+                                                borderColor: '#18A0FB',
+                                                borderRightWidth: this.state.gridAlign === 'left' ? 0 : 2,
+                                                borderLeftWidth: this.state.gridAlign === 'right' ? 0 : 2
+                                            }
+                                    )
+                            }
+                        />
+                    </AnimatedTouchableOpacity>
+
+                    {/*Ruler*/}
+                    <Animated.View
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            bottom: large * 2 + extra + tiny * 2,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            transform: [
+                                {
+                                    translateX: this.animatedVisibility.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-(large + base * 3), small]
+                                    })
+                                }
+                            ]
+                        }}
+                    >
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.hideSchedule();
+                                this.setState({
+                                    showRuler: !this.state.showRuler
+                                });
+                            }}
+                            style={{
+                                height: large,
+                                width: large,
+                                borderRadius: large,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderColor: '#2C2C2C33',
+                                borderWidth: 1
+                            }}
+                        >
+                            <View
+                                style={{
+                                    height: small,
+                                    width: small,
+                                    borderColor: '#18A0FB',
+                                    backgroundColor: "#18A0FB33",
+                                    borderWidth: 1,
+                                }}
+                            />
+                        </TouchableOpacity>
+
+                        {
+                            this.state.showRuler ? (
+                                <React.Fragment>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.hideSchedule();
+                                            if (this.ruler) {
+                                                this.ruler.changeUnit();
+                                            }
+                                        }}
+                                        style={{
+                                            height: base,
+                                            width: base,
+                                            borderRadius: base,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginLeft: tiny,
+                                            borderColor: '#2C2C2C33',
+                                            backgroundColor: "#18A0FB33",
+                                            borderWidth: 1
+                                        }}
+
+                                    >
+                                        <Text
+                                            style={{
+                                                color: '#18A0FB'
+                                            }}
+                                        >{'U'}</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.hideSchedule();
+                                            if (this.ruler) {
+                                                this.ruler.changeSensitivity();
+                                            }
+                                        }}
+                                        style={{
+                                            height: base,
+                                            width: base,
+                                            borderRadius: base,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginLeft: tiny,
+                                            borderColor: '#2C2C2C33',
+                                            backgroundColor: "#18A0FB33",
+                                            borderWidth: 1
+                                        }}
+
+                                    >
+                                        <Text
+                                            style={{
+                                                color: '#18A0FB'
+                                            }}
+                                        >{'S'}</Text>
+                                    </TouchableOpacity>
+                                </React.Fragment>
+                            ) : null
+                        }
+                    </Animated.View>
+
+                    {/*Zoom*/}
+                    <Animated.View
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            bottom: large * 3 + extra + tiny * 3,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            transform: [
+                                {
+                                    translateX: this.animatedVisibility.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-(large * 3 + extra * 2 + tiny), small]
                                     })
                                 }
                             ]
@@ -300,7 +531,7 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                 borderRadius: large,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                borderColor: '#2C2C2CAA',
+                                borderColor: '#2C2C2C33',
                                 borderWidth: 1
                             }}
                         >
@@ -339,7 +570,7 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                             marginLeft: tiny,
-                                            borderColor: '#2C2C2CAA',
+                                            borderColor: '#2C2C2C33',
                                             backgroundColor: "#18A0FB33",
                                             borderWidth: 1,
                                             paddingHorizontal: tiny
@@ -374,303 +605,62 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                             pointerEvents={'none'}
                                         />
                                     </View>
+
+                                    <Animated.View
+                                        style={{
+                                            width: large,
+                                            height: large,
+                                            justifyContent: 'center',
+                                            alignItems: 'center'
+                                        }}
+                                        pointerEvents={'box-only'}
+                                        {...this.panSliderZoomSlide.panHandlers}
+                                    >
+                                        <Image
+                                            source={require('./../assets/move.png')}
+                                            style={{
+                                                width: large - tiny,
+                                                height: large - tiny,
+                                                tintColor: '#18A0FB'
+                                            }}
+                                            width={large - tiny}
+                                            height={large - tiny}
+                                        />
+                                    </Animated.View>
+
+                                    <Animated.View
+                                        style={{
+                                            width: large,
+                                            height: large,
+                                            justifyContent: 'center',
+                                            alignItems: 'center'
+                                        }}
+                                    >
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.x = this.y = this.z = 0;
+                                                animateGenericNative(this.animatedZoom, 0);
+                                                animateGenericNative(this.animatedZoomSlideX, 0);
+                                                animateGenericNative(this.animatedZoomSlideY, 0);
+                                            }}
+                                        >
+                                            <Image
+                                                source={require('./../assets/reset.png')}
+                                                style={{
+                                                    width: large - tiny,
+                                                    height: large - tiny,
+                                                    tintColor: '#18A0FB'
+                                                }}
+                                                width={large - tiny}
+                                                height={large - tiny}
+                                            />
+                                        </TouchableOpacity>
+                                    </Animated.View>
                                 </React.Fragment>
                             ) : null
                         }
                     </Animated.View>
-
-                    {/*Ruler*/}
-                    <Animated.View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginBottom: tiny,
-                            transform: [
-                                {
-                                    translateX: this.animatedVisibility.interpolate({
-                                        inputRange: [0, 1],
-                                        outputRange: [-(large + base * 3), small]
-                                    })
-                                }
-                            ]
-                        }}
-                    >
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.hideSchedule();
-                                this.setState({
-                                    showRuler: !this.state.showRuler
-                                });
-                            }}
-                            style={{
-                                height: large,
-                                width: large,
-                                borderRadius: large,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderColor: '#2C2C2CAA',
-                                borderWidth: 1
-                            }}
-                        >
-                            <View
-                                style={{
-                                    height: small,
-                                    width: small,
-                                    borderColor: '#18A0FB',
-                                    backgroundColor: "#18A0FB33",
-                                    borderWidth: 1,
-                                }}
-                            />
-                        </TouchableOpacity>
-
-                        {
-                            this.state.showRuler ? (
-                                <React.Fragment>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.hideSchedule();
-                                            if (this.ruler) {
-                                                this.ruler.changeUnit();
-                                            }
-                                        }}
-                                        style={{
-                                            height: base,
-                                            width: base,
-                                            borderRadius: base,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            marginLeft: tiny,
-                                            borderColor: '#2C2C2CAA',
-                                            backgroundColor: "#18A0FB33",
-                                            borderWidth: 1
-                                        }}
-
-                                    >
-                                        <Text
-                                            style={{
-                                                color: '#18A0FB'
-                                            }}
-                                        >{'U'}</Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.hideSchedule();
-                                            if (this.ruler) {
-                                                this.ruler.changeSensitivity();
-                                            }
-                                        }}
-                                        style={{
-                                            height: base,
-                                            width: base,
-                                            borderRadius: base,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            marginLeft: tiny,
-                                            borderColor: '#2C2C2CAA',
-                                            backgroundColor: "#18A0FB33",
-                                            borderWidth: 1
-                                        }}
-
-                                    >
-                                        <Text
-                                            style={{
-                                                color: '#18A0FB'
-                                            }}
-                                        >{'S'}</Text>
-                                    </TouchableOpacity>
-                                </React.Fragment>
-                            ) : null
-                        }
-                    </Animated.View>
-
-                    {/*Grid*/}
-                    <Animated.View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginBottom: tiny,
-                            transform: [
-                                {
-                                    translateX: this.animatedVisibility.interpolate({
-                                        inputRange: [0, 1],
-                                        outputRange: [-large, small]
-                                    })
-                                }
-                            ]
-                        }}
-                    >
-                        <TouchableOpacity
-                            onPress={() => {
-
-                                const OPTIONS = ['side', 'center', 'left', 'right', 'hidden'];
-                                let index = OPTIONS.indexOf(this.state.gridAlign);
-                                let newPosition = OPTIONS[index + 1] || 'side';
-
-                                this.setState({
-                                    gridAlign: newPosition as any
-                                });
-
-                                this.hideSchedule();
-                            }}
-                            style={{
-                                height: large,
-                                width: large,
-                                borderRadius: large,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderColor: '#2C2C2CAA',
-                                borderWidth: 1,
-
-                            }}
-                        >
-                            <View
-                                style={
-                                    this.state.gridAlign === 'center'
-                                        ? {
-                                            height: small,
-                                            width: 2,
-                                            alignSelf: 'center',
-                                            backgroundColor: '#18A0FB',
-                                        }
-                                        : (
-                                            this.state.gridAlign === 'hidden'
-                                                ? {
-
-                                                    opacity: 0
-
-                                                }
-                                                : {
-                                                    height: small,
-                                                    width: small,
-                                                    borderColor: '#18A0FB',
-                                                    borderRightWidth: this.state.gridAlign === 'left' ? 0 : 2,
-                                                    borderLeftWidth: this.state.gridAlign === 'right' ? 0 : 2
-                                                }
-                                        )
-                                }
-                            />
-                        </TouchableOpacity>
-                    </Animated.View>
-
-                    {/*Logo*/}
-                    <TouchableOpacity
-                        onPress={event => {
-                            clearTimeout(this.timeout);
-                            if (this.visible) {
-                                animateGenericNative(this.animatedVisibility, 0);
-                            } else {
-                                this.hideSchedule();
-                                animateGenericNative(this.animatedVisibility, 1);
-                            }
-
-                            this.visible = !this.visible;
-                        }}
-                        style={{
-                            height: extra,
-                            width: extra,
-                            marginLeft: tiny,
-                            borderRadius: extra,
-                            backgroundColor: '#18A0FB33'
-                        }}
-                    >
-                        <Image
-                            source={require('./../assets/logo.png')}
-                            style={{
-                                width: extra,
-                                height: extra,
-                                resizeMode: 'stretch'
-                            }}
-                            width={extra}
-                            height={extra}
-                        />
-                    </TouchableOpacity>
-
-
                 </Animated.View>
-
-                {
-                    this.state.zoom ? (
-                        <React.Fragment>
-                            <Animated.View
-                                style={{
-                                    position: 'absolute',
-                                    left: tiny * 4 + extra * 2 + large,
-                                    bottom: extra + large * 3 + tiny * 3,
-                                    width: large,
-                                    height: large,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    zIndex: 5000,
-                                    opacity: this.animatedVisibility,
-                                    transform: [
-                                        {
-                                            translateX: this.animatedVisibility.interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: [-(tiny * 4 + extra * 2 + large * 2), 0]
-                                            })
-                                        }
-                                    ]
-                                }}
-                                pointerEvents={'box-only'}
-                                {...this.panSliderZoomSlide.panHandlers}
-                            >
-                                <Image
-                                    source={require('./../assets/move.png')}
-                                    style={{
-                                        width: large - tiny,
-                                        height: large - tiny,
-                                        tintColor: '#18A0FB'
-                                    }}
-                                    width={large - tiny}
-                                    height={large - tiny}
-                                />
-                            </Animated.View>
-
-                            <Animated.View
-                                style={{
-                                    position: 'absolute',
-                                    left: tiny * 4 + extra * 2 + large * 2,
-                                    bottom: extra + large * 3 + tiny * 3,
-                                    width: large,
-                                    height: large,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    zIndex: 5000,
-                                    opacity: this.animatedVisibility,
-                                    transform: [
-                                        {
-                                            translateX: this.animatedVisibility.interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: [-(tiny * 4 + extra * 2 + large * 3), 0]
-                                            })
-                                        }
-                                    ]
-                                }}
-                            >
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        this.x = this.y = this.z = 0;
-                                        animateGenericNative(this.animatedZoom, 0);
-                                        animateGenericNative(this.animatedZoomSlideX, 0);
-                                        animateGenericNative(this.animatedZoomSlideY, 0);
-                                    }}
-                                >
-                                    <Image
-                                        source={require('./../assets/reset.png')}
-                                        style={{
-                                            width: large - tiny,
-                                            height: large - tiny,
-                                            tintColor: '#18A0FB'
-                                        }}
-                                        width={large - tiny}
-                                        height={large - tiny}
-                                    />
-                                </TouchableOpacity>
-                            </Animated.View>
-                        </React.Fragment>
-                    ) : null
-                }
             </View>
         )
     }
