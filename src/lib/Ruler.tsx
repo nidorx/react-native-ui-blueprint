@@ -938,6 +938,7 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         }}
                     >
                     </Animated.View>
+
                     {/*Vertical Text Top*/}
                     <CustomText
                         ref={(ref) => {
@@ -949,11 +950,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         style={[
                             verticalTextStyle,
                             {
-                                opacity: ruler.valueTop.interpolate({
-                                    inputRange: [0, 30],
-                                    outputRange: [0, 1],
-                                    extrapolate: 'clamp'
-                                }),
                                 transform: [
                                     {
                                         translateY: Animated.subtract(
@@ -984,11 +980,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         style={[
                             verticalTextStyle,
                             {
-                                opacity: ruler.valueBottom.interpolate({
-                                    inputRange: [screenHeight - 30, screenHeight - 15],
-                                    outputRange: [1, 0],
-                                    extrapolate: 'clamp'
-                                }),
                                 transform: [
                                     {
                                         translateY: Animated.subtract(
@@ -1019,11 +1010,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         style={[
                             verticalTextStyle,
                             {
-                                opacity: ruler.valueTop.interpolate({
-                                    inputRange: [0, 15],
-                                    outputRange: [0, 1],
-                                    extrapolate: 'clamp'
-                                }),
                                 transform: [
                                     {
                                         translateY: Animated.subtract(
@@ -1054,12 +1040,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         style={[
                             verticalTextStyle,
                             {
-                                // left: -60,
-                                opacity: ruler.valueBottom.interpolate({
-                                    inputRange: [screenHeight - 15, screenHeight],
-                                    outputRange: [1, 0],
-                                    extrapolate: 'clamp'
-                                }),
                                 transform: [
                                     {
                                         translateY: Animated.subtract(
@@ -1102,12 +1082,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         style={[
                             horizontalTextStyle,
                             {
-                                opacity: ruler.valueLeft.interpolate({
-                                    inputRange: [15, 60],
-                                    outputRange: [0, 1],
-                                    extrapolate: 'clamp',
-
-                                }),
                                 transform: [
                                     {
                                         translateX: Animated.subtract(
@@ -1138,11 +1112,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                         style={[
                             horizontalTextStyle,
                             {
-                                opacity: ruler.valueRight.interpolate({
-                                    inputRange: [screenWidth - 60, screenWidth],
-                                    outputRange: [1, 0],
-                                    extrapolate: 'clamp'
-                                }),
                                 transform: [
                                     {
                                         translateX: Animated.add(
@@ -1175,12 +1144,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                             horizontalTextStyle,
                             {
                                 top: -16,
-                                opacity: ruler.valueLeft.interpolate({
-                                    inputRange: [15, 60],
-                                    outputRange: [0, 1],
-                                    extrapolate: 'clamp',
-
-                                }),
                                 transform: [
                                     {
                                         translateX: Animated.subtract(
@@ -1212,12 +1175,6 @@ export default class Ruler extends React.PureComponent<RulerProps> {
                             horizontalTextStyle,
                             {
                                 top: -16,
-                                opacity: ruler.valueRight.interpolate({
-                                    inputRange: [screenWidth - 60, screenWidth],
-                                    outputRange: [1, 0],
-                                    extrapolate: 'clamp',
-
-                                }),
                                 transform: [
                                     {
                                         translateX: Animated.add(

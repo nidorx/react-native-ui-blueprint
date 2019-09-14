@@ -3,6 +3,6 @@
 // const H = 680;
 module.exports = {
     "logo.png": 80,
-    "border-side.png": 30,
-    "border-center.png": 30
+    "move.png": 50,
+    "reset.png": 50,
 };
