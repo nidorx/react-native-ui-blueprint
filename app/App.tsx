@@ -13,7 +13,7 @@ export default class App extends React.PureComponent {
                 // }}
             >
                 <StatusBar backgroundColor={'transparent'} translucent={true} barStyle="dark-content"/>
-                <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems:'center'}]}>
+                <View style={[StyleSheet.absoluteFill, {justifyContent: 'center', alignItems: 'center'}]}>
                     <Text>
                         {'React Native Blueprint'}
                     </Text>

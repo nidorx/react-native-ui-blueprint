@@ -13,40 +13,23 @@ import {
 } from 'react-native'
 import {animateGenericNative} from "./Utils";
 import Ruler from "./Ruler";
-
-
-const MAGENTA = '#ff4aff';
-const CYAN = '#4affff';
-const GRAY = '#828282';
-
-const pixelRatio = PixelRatio.get();
-
-function pointToPixel(points: number) {
-    return points * pixelRatio;
-}
-
-function pixelToPoint(pixels: number) {
-    return pixels / pixelRatio;
-}
-
-export type Guides = Array<{
-    position: number;
-    orientation: 'horizontal' | 'vertical';
-    units?: 'percent' | 'point';
-    color?: string;
-    opacity?: number;
-    width?: number;
-}>;
+import Grid, {GridLines, Guides} from "./Grid";
 
 export type BlueprintProps = {
     /**
      * Desabilita completamente o Blueprint
      */
     disabled?: boolean;
+
     /**
      * Add guides on screen. Percentual, points or pixel. Ex. v50%, h50%, v10px, v10p
      */
     guides?: Guides;
+
+    /**
+     * Allows you to add regularly spaced marker lines on the screen
+     */
+    grid?: GridLines;
 
     /**
      * Add image to pixel-perfect
@@ -55,7 +38,8 @@ export type BlueprintProps = {
 }
 
 type BlueprintState = {
-    align: 'center' | 'side' | 'hidden';
+    showRuler: boolean;
+    gridAlign: 'side' | 'center' | 'left' | 'right' | 'hidden';
     imageSize?: { width: number, height: number, uri: string };
     photos: Array<any>
 }
@@ -66,13 +50,29 @@ type BlueprintState = {
 export default class Blueprint extends React.PureComponent<BlueprintProps, BlueprintState> {
 
     state: BlueprintState = {
-        align: 'side',
+        showRuler: false,
+        gridAlign: 'hidden',
         photos: []
     };
 
-    private animatedGridValue = new Animated.Value(0);
+    private animatedVisibility = new Animated.Value(0);
 
     private visible = true;
+
+    private ruler?: Ruler;
+
+    private timeout: any;
+
+    /**
+     * Schedule to hide Buttons after 4 seconds
+     */
+    private hideSchedule = () => {
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+            this.visible = false;
+            animateGenericNative(this.animatedVisibility, 0);
+        }, 4000);
+    };
 
     resolveImage = () => {
         this.setState({
@@ -116,14 +116,6 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
         if (prevProps.image !== this.props.image) {
             this.resolveImage();
         }
-
-        if (prevState.align !== this.state.align) {
-            if (this.state.align === 'hidden') {
-                animateGenericNative(this.animatedGridValue, 0);
-            } else {
-                animateGenericNative(this.animatedGridValue, 1);
-            }
-        }
     }
 
     render() {
@@ -138,112 +130,6 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
         const base = 24;
         const large = 48;
         const extra = 64;
-
-        let rulerV: Guides = [];
-
-        let maxPx = pointToPixel(width);
-        let spacingPx = pointToPixel(tiny);
-        for (let a = 0; a < maxPx; a += spacingPx) {
-            rulerV.push({
-                position: pixelToPoint(a),
-                orientation: 'vertical',
-                units: 'point',
-                color: GRAY,
-                opacity: 1,
-            });
-        }
-
-        let guides: Guides = [];
-        if (this.props.guides) {
-            guides = this.props.guides
-        } else {
-            guides = [
-                // Default guides
-                {
-                    position: 50,
-                    orientation: 'horizontal',
-                    units: 'percent'
-                },
-                {
-                    position: 50,
-                    orientation: 'vertical',
-                    units: 'percent'
-                }
-            ];
-
-            const addGuides = (
-                maxPx: number,
-                spacingPx: number,
-                orientation: 'horizontal' | 'vertical',
-                color: string,
-                opacity: number,
-                width?: number,
-                ruler?: boolean
-            ) => {
-                if (orientation === 'vertical') {
-                    let midle = maxPx / 2;
-                    if (this.state.align === 'center') {
-                        for (let a = midle - spacingPx; a >= 0; a -= spacingPx) {
-                            guides.push({
-                                position: pixelToPoint(a),
-                                orientation: orientation,
-                                units: 'point',
-                                color: color,
-                                opacity: opacity,
-                                width: width
-                            });
-                        }
-                        for (let a = midle - spacingPx; a <= maxPx; a += spacingPx) {
-                            guides.push({
-                                position: pixelToPoint(a),
-                                orientation: orientation,
-                                units: 'point',
-                                color: color,
-                                opacity: opacity,
-                                width: width
-                            });
-                        }
-                    } else {
-                        for (let a = spacingPx; a < midle; a += spacingPx) {
-                            guides.push({
-                                position: pixelToPoint(a),
-                                orientation: orientation,
-                                units: 'point',
-                                color: color,
-                                opacity: opacity,
-                                width: width
-                            });
-                        }
-                        for (let a = maxPx - spacingPx; a > midle; a -= spacingPx) {
-                            guides.push({
-                                position: pixelToPoint(a),
-                                orientation: orientation,
-                                units: 'point',
-                                color: color,
-                                opacity: opacity,
-                                width: width
-                            });
-                        }
-                    }
-                } else {
-                    for (let a = spacingPx; a <= maxPx; a += spacingPx) {
-                        guides.push({
-                            position: pixelToPoint(a),
-                            orientation: orientation,
-                            units: 'point',
-                            color: color,
-                            opacity: opacity,
-                            width: width
-                        });
-                    }
-                }
-            };
-
-            addGuides(pointToPixel(width), pointToPixel(tiny), 'vertical', GRAY, 0.2);
-            addGuides(pointToPixel(height), pointToPixel(tiny), 'horizontal', GRAY, 0.2);
-            addGuides(pointToPixel(width), pointToPixel(base), 'vertical', MAGENTA, 0.3);
-            addGuides(pointToPixel(height), pointToPixel(base), 'horizontal', MAGENTA, 0.3);
-        }
 
         return (
             <View style={StyleSheet.absoluteFill}>
@@ -276,137 +162,254 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                     }
                 </Animated.View>
 
-                {/*Grid*/}
+                {
+                    this.state.gridAlign !== 'hidden'
+                        ? (
+                            <Grid
+                                grid={this.props.grid}
+                                guides={this.props.guides}
+                                align={this.state.gridAlign}
+                            />
+                        )
+                        : null
+                }
+
+
+                {
+                    this.state.showRuler ? (
+                        <Ruler
+                            ref={(ruler) => {
+                                this.ruler = ruler || undefined;
+                            }}
+                        />
+                    ) : null
+                }
+
                 <Animated.View
                     style={[
-                        StyleSheet.absoluteFill,
-                        {opacity: this.animatedGridValue}
+                        {
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            bottom: large,
+                            justifyContent: 'flex-end',
+                            alignItems: 'flex-start',
+                            opacity: this.animatedVisibility.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, 0.7]
+                            })
+                        }
                     ]}
                     pointerEvents={'box-none'}
                 >
-                    {
-                        guides.map((guide, index) => {
-                            return (
-                                <View
-                                    key={`guide_${index}`}
-                                    style={
-                                        [
-                                            {
-                                                position: 'absolute',
-                                                opacity: guide.opacity || 1,
-                                                borderColor: guide.color || CYAN
-                                            },
-                                            guide.orientation === 'horizontal'
-                                                ? {
-                                                    left: 0,
-                                                    right: 0,
-                                                    top: guide.units === 'point'
-                                                        ? guide.position :
-                                                        `${guide.position}%`,
-                                                    borderTopWidth: guide.width || StyleSheet.hairlineWidth,
-                                                    transform: [
-                                                        {translateY: -((guide.width || 1) / 2)}
-                                                    ]
-                                                }
-                                                : {
-                                                    top: 0,
-                                                    bottom: 0,
-                                                    left: guide.units === 'point'
-                                                        ? guide.position :
-                                                        `${guide.position}%`,
-                                                    borderLeftWidth: guide.width || StyleSheet.hairlineWidth,
-                                                    transform: [
-                                                        {translateX: -((guide.width || 1) / 2)}
-                                                    ]
-                                                }
-                                        ]
-                                    }
-                                />
-                            )
-                        })
-                    }
-                </Animated.View>
-
-
-                {/*Régua*/}
-                <Ruler/>
-
-                <TouchableOpacity
-                    onPress={event => {
-                        if (this.visible) {
-                            this.setState({
-                                align:
-                                    this.state.align === 'side'
-                                        ? 'center'
-                                        : (
-                                            this.state.align === 'center'
-                                                ? 'hidden'
-                                                : 'side'
-                                        )
-                            });
-                        }
-                    }}
-                    style={{
-                        position: 'absolute',
-                        bottom: small * 2 + extra,
-                        left: tiny,
-                        height: base,
-                        width: base,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: "#18A0FB33",
-                        // opacity: 0
-                    }}
-                >
-                    <View
-                        style={
-                            this.state.align === 'side'
-                                ? {
-                                    height: base,
-                                    width: base,
-                                    borderColor: '#18A0FB',
-                                    borderRightWidth: 2,
-                                    borderLeftWidth: 2
+                    <Animated.View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: tiny,
+                            transform: [
+                                {
+                                    translateX: this.animatedVisibility.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-large, small]
+                                    })
                                 }
-                                : (
-                                    this.state.align === 'center'
-                                        ? {
+                            ]
+                        }}
+                    >
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.hideSchedule();
+                                this.setState({
+                                    showRuler: !this.state.showRuler
+                                });
+                            }}
+                            style={{
+                                height: large,
+                                width: large,
+                                borderRadius: large,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderColor: '#2C2C2CAA',
+                                borderWidth: 1
+                            }}
+                        >
+                            <View
+                                style={{
+                                    height: small,
+                                    width: small,
+                                    borderColor: '#18A0FB',
+                                    backgroundColor: "#18A0FB33",
+                                    borderWidth: 1,
+                                }}
+                            />
+                        </TouchableOpacity>
+
+                        {
+                            this.state.showRuler ? (
+                                <React.Fragment>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.hideSchedule();
+                                            if (this.ruler) {
+                                                this.ruler.changeUnit();
+                                            }
+                                        }}
+                                        style={{
                                             height: base,
+                                            width: base,
+                                            borderRadius: base,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginLeft: tiny,
+                                            borderColor: '#2C2C2CAA',
+                                            backgroundColor: "#18A0FB33",
+                                            borderWidth: 1
+                                        }}
+
+                                    >
+                                        <Text
+                                            style={{
+                                                color: '#18A0FB'
+                                            }}
+                                        >{'U'}</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.hideSchedule();
+                                            if (this.ruler) {
+                                                this.ruler.changeSensitivity();
+                                            }
+                                        }}
+                                        style={{
+                                            height: base,
+                                            width: base,
+                                            borderRadius: base,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginLeft: tiny,
+                                            borderColor: '#2C2C2CAA',
+                                            backgroundColor: "#18A0FB33",
+                                            borderWidth: 1
+                                        }}
+
+                                    >
+                                        <Text
+                                            style={{
+                                                color: '#18A0FB'
+                                            }}
+                                        >{'S'}</Text>
+                                    </TouchableOpacity>
+                                </React.Fragment>
+                            ) : null
+                        }
+                    </Animated.View>
+
+
+                    <Animated.View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: tiny,
+                            transform: [
+                                {
+                                    translateX: this.animatedVisibility.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-large, small]
+                                    })
+                                }
+                            ]
+                        }}
+                    >
+                        <TouchableOpacity
+                            onPress={() => {
+
+                                const OPTIONS = ['side', 'center', 'left', 'right', 'hidden'];
+                                let index = OPTIONS.indexOf(this.state.gridAlign);
+                                let newPosition = OPTIONS[index + 1] || 'side';
+
+                                this.setState({
+                                    gridAlign: newPosition as any
+                                });
+
+                                this.hideSchedule();
+                            }}
+                            style={{
+                                height: large,
+                                width: large,
+                                borderRadius: large,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderColor: '#2C2C2CAA',
+                                borderWidth: 1
+                            }}
+                        >
+                            <View
+                                style={
+                                    this.state.gridAlign === 'center'
+                                        ? {
+                                            height: small,
                                             width: 2,
-                                            // left: -1,
                                             alignSelf: 'center',
                                             backgroundColor: '#18A0FB',
                                         }
-                                        : {
-                                            opacity: 0
-                                        }
-                                )
-                        }
-                    />
-                </TouchableOpacity>
+                                        : (
+                                            this.state.gridAlign === 'hidden'
+                                                ? {
 
-                <TouchableOpacity
-                    onPress={event => {
-                        if (this.visible) {
-                            animateGenericNative(this.animatedGridValue, 0);
-                        } else {
-                            animateGenericNative(this.animatedGridValue, 1);
-                        }
+                                                    opacity: 0
 
-                        this.visible = !this.visible;
-                    }}
-                    style={{
-                        position: 'absolute',
-                        bottom: small,
-                        left: -(extra - large),
-                        height: extra,
-                        width: extra,
-                        borderRadius: extra,
-                        backgroundColor: '#18A0FB33',
-                        // opacity: 0
-                    }}
-                />
+                                                }
+                                                : {
+                                                    height: small,
+                                                    width: small,
+                                                    borderColor: '#18A0FB',
+                                                    borderRightWidth: this.state.gridAlign === 'left' ? 0 : 2,
+                                                    borderLeftWidth: this.state.gridAlign === 'right' ? 0 : 2
+                                                }
+                                        )
+                                }
+                            />
+                        </TouchableOpacity>
+                    </Animated.View>
+
+
+                    <TouchableOpacity
+                        onPress={event => {
+                            clearTimeout(this.timeout);
+                            if (this.visible) {
+                                animateGenericNative(this.animatedVisibility, 0);
+                            } else {
+                                this.hideSchedule();
+                                animateGenericNative(this.animatedVisibility, 1);
+                            }
+
+                            this.visible = !this.visible;
+                        }}
+                        style={{
+                            height: extra,
+                            width: extra,
+                            marginLeft: tiny,
+                            borderRadius: extra,
+                            backgroundColor: '#18A0FB33'
+                        }}
+                    >
+                        <Image
+                            source={require('./../assets/logo.png')}
+                            style={{
+                                width: extra,
+                                height: extra,
+                                resizeMode: 'stretch'
+                            }}
+                            width={extra}
+                            height={extra}
+                        />
+                    </TouchableOpacity>
+                </Animated.View>
             </View>
         )
     }
+
+
 }

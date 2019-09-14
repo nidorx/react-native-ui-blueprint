@@ -214,10 +214,12 @@ const DragCorner = (props: { ruler: RulerType, right?: boolean, bottom?: boolean
     )
 };
 
+export type RulerProps = {};
+
 /**
  * Add guidelines on screen
  */
-export default class Ruler extends React.PureComponent {
+export default class Ruler extends React.PureComponent<RulerProps> {
 
     private ruler: any;
 
@@ -239,7 +241,7 @@ export default class Ruler extends React.PureComponent {
 
     private sensitivity = 1;
 
-    changeSensitivity = () => {
+    public changeSensitivity = () => {
         this.sensitivity = this.sensitivity === 1
             ? 0.5
             : this.sensitivity === 0.5
@@ -247,7 +249,7 @@ export default class Ruler extends React.PureComponent {
                 : 1;
     };
 
-    changeUnit() {
+    public changeUnit() {
         if (this.unit === 'dp') {
             this.unit = 'px';
         } else if (this.unit === 'px') {
@@ -1289,74 +1291,6 @@ export default class Ruler extends React.PureComponent {
                     }
                     pointerEvents={'box-only'}
                 />
-
-                <Animated.View
-                    style={{
-                        position: 'absolute',
-                        bottom: 20,
-                        left: 50,
-                        opacity: ruler.valueBottom.interpolate({
-                            inputRange: [screenHeight - 60, screenHeight - 35],
-                            outputRange: [1, 0],
-                            extrapolate: 'clamp'
-                        })
-                    }}
-                >
-                    <TouchableOpacity
-                        onPress={() => {
-                            this.changeUnit();
-                        }}
-                    >
-                        <CustomText
-                            text={'unit'}
-                            style={{
-                                height: 30,
-                                fontSize: 10,
-                                color: '#FFF',
-                                borderRadius: 4,
-                                textAlign: 'center',
-                                fontFamily: 'System',
-                                paddingHorizontal: 6,
-                                textAlignVertical: 'center',
-                                backgroundColor: '#2c2c2c',
-                            }}
-                        />
-                    </TouchableOpacity>
-                </Animated.View>
-
-                <Animated.View
-                    style={{
-                        position: 'absolute',
-                        bottom: 20,
-                        left: 90,
-                        opacity: ruler.valueBottom.interpolate({
-                            inputRange: [screenHeight - 60, screenHeight - 35],
-                            outputRange: [1, 0],
-                            extrapolate: 'clamp'
-                        })
-                    }}
-                >
-                    <TouchableOpacity
-                        onPress={() => {
-                            this.changeSensitivity();
-                        }}
-                    >
-                        <CustomText
-                            text={'sensitivity'}
-                            style={{
-                                height: 30,
-                                fontSize: 10,
-                                color: '#FFF',
-                                borderRadius: 4,
-                                textAlign: 'center',
-                                fontFamily: 'System',
-                                paddingHorizontal: 6,
-                                textAlignVertical: 'center',
-                                backgroundColor: '#2c2c2c',
-                            }}
-                        />
-                    </TouchableOpacity>
-                </Animated.View>
 
                 {/*Drag - Corner Top Left*/}
                 <DragCorner ruler={ruler} bottom={false} right={false}/>
