@@ -2,13 +2,10 @@ import React from 'react';
 import {
     Animated,
     Dimensions,
-    Image,
-    ImageRequireSource,
-    ImageURISource,
-    PanResponder, PanResponderInstance,
+    PanResponder,
+    PanResponderInstance,
     PixelRatio,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native'
@@ -28,12 +25,22 @@ type RulerType = {
     screenWidth: number;
     screenHeight: number;
     minSize: number;
+
     valueTop: Animated.Value;
     valueLeft: Animated.Value;
     valueWidth: Animated.Value;
     valueHeigth: Animated.Value;
     valueBottom: Animated.Value;
     valueRight: Animated.Value;
+
+
+    valueTopCP: Animated.Value;
+    valueLeftCP: Animated.Value;
+    valueWidthCP: Animated.Value;
+    valueHeigthCP: Animated.Value;
+    valueBottomCP: Animated.Value;
+    valueRightCP: Animated.Value;
+
     panCenter: PanResponderInstance;
     panTopLeft: PanResponderInstance;
     panTopRight: PanResponderInstance;
@@ -55,7 +62,7 @@ class CustomText extends React.PureComponent<any> {
             <Animated.Text
                 {...this.props}
             >
-                {this.state.text || this.props.text || this.props.children}
+                {this.state.text || this.props.text || ''}
             </Animated.Text>
         )
     }
@@ -69,7 +76,9 @@ class CustomText extends React.PureComponent<any> {
  */
 const DragCorner = (props: { ruler: RulerType, right?: boolean, bottom?: boolean }) => {
     const {ruler, right, bottom} = props;
-    const colorPan = '#dedede';
+    const DEBUG = false;
+    const DEBUG_COLOR_A = '#dedeff';
+    const DEBUG_COLOR_B = '#ffdede';
     return (
 
         <React.Fragment>
@@ -77,16 +86,34 @@ const DragCorner = (props: { ruler: RulerType, right?: boolean, bottom?: boolean
             <Animated.View
                 style={{
                     position: 'absolute',
-                    left: right ? 0 : -50,
-                    top: bottom ? 0 : -50,
+                    left: right ? -15 : -35,
+                    top: bottom ? -15 : -35,
                     width: 50,
                     height: 50,
-                    // backgroundColor: colorPan,
-                    opacity: 0.2,
                     transform: [
-                        {translateX: right ? ruler.valueRight : ruler.valueLeft},
-                        {translateY: bottom ? ruler.valueBottom : ruler.valueTop}
-                    ]
+                        {
+                            translateX: Animated.subtract(
+                                right ? ruler.valueRightCP : ruler.valueLeftCP,
+                                ruler.valueWidthCP.interpolate({
+                                    inputRange: [50, 141],
+                                    outputRange: right ? [-15, 0] : [15, 0],
+                                    extrapolate: 'clamp'
+                                })
+                            )
+                        },
+                        {
+                            translateY: Animated.subtract(
+                                bottom ? ruler.valueBottomCP : ruler.valueTopCP,
+                                ruler.valueHeigthCP.interpolate({
+                                    inputRange: [50, 141],
+                                    outputRange: bottom ? [-15, 0] : [15, 0],
+                                    extrapolate: 'clamp'
+                                })
+                            )
+                        }
+                    ],
+                    opacity: DEBUG ? 0.5 : 0,
+                    backgroundColor: DEBUG ? DEBUG_COLOR_A : undefined
                 }}
                 {
                     ...(
@@ -102,25 +129,34 @@ const DragCorner = (props: { ruler: RulerType, right?: boolean, bottom?: boolean
             <Animated.View
                 style={{
                     position: 'absolute',
-                    left: right ? 0 : -50,
+                    left: right ? -15 : -35,
                     top: 0,
                     width: 50,
-                    height: 50,
-                    // backgroundColor: colorPan,
-                    opacity: 0.2,
+                    height: 35,
                     transform: [
-                        {translateX: right ? ruler.valueRight : ruler.valueLeft},
+                        {
+                            translateX: Animated.subtract(
+                                right ? ruler.valueRightCP : ruler.valueLeftCP,
+                                ruler.valueWidthCP.interpolate({
+                                    inputRange: [50, 141],
+                                    outputRange: right ? [-15, 0] : [15, 0],
+                                    extrapolate: 'clamp'
+                                })
+                            )
+                        },
                         {
                             translateY: Animated.subtract(
-                                bottom ? ruler.valueBottom : ruler.valueTop,
-                                ruler.valueHeigth.interpolate({
+                                bottom ? ruler.valueBottomCP : ruler.valueTopCP,
+                                ruler.valueHeigthCP.interpolate({
                                     inputRange: [50, 141],
-                                    outputRange: bottom ? [0, 50] : [50, 0],
+                                    outputRange: bottom ? [0, 50] : [35, -15],
                                     extrapolate: 'clamp'
                                 })
                             )
                         }
-                    ]
+                    ],
+                    opacity: DEBUG ? 0.5 : 0,
+                    backgroundColor: DEBUG ? DEBUG_COLOR_B : undefined
                 }}
                 {
                     ...(
@@ -137,24 +173,33 @@ const DragCorner = (props: { ruler: RulerType, right?: boolean, bottom?: boolean
                 style={{
                     position: 'absolute',
                     left: 0,
-                    top: bottom ? 0 : -50,
-                    width: 50,
+                    top: bottom ? -15 : -35,
+                    width: 35,
                     height: 50,
-                    // backgroundColor: colorPan,
-                    opacity: 0.2,
                     transform: [
                         {
                             translateX: Animated.subtract(
-                                right ? ruler.valueRight : ruler.valueLeft,
-                                ruler.valueWidth.interpolate({
+                                right ? ruler.valueRightCP : ruler.valueLeftCP,
+                                ruler.valueWidthCP.interpolate({
                                     inputRange: [50, 141],
-                                    outputRange: right ? [0, 50] : [50, 0],
+                                    outputRange: right ? [0, 50] : [35, -15],
                                     extrapolate: 'clamp'
                                 })
                             )
                         },
-                        {translateY: bottom ? ruler.valueBottom : ruler.valueTop}
-                    ]
+                        {
+                            translateY: Animated.subtract(
+                                bottom ? ruler.valueBottomCP : ruler.valueTopCP,
+                                ruler.valueHeigthCP.interpolate({
+                                    inputRange: [50, 141],
+                                    outputRange: bottom ? [-15, 0] : [15, 0],
+                                    extrapolate: 'clamp'
+                                })
+                            )
+                        }
+                    ],
+                    opacity: DEBUG ? 0.5 : 0,
+                    backgroundColor: DEBUG ? DEBUG_COLOR_B : undefined
                 }}
                 {
                     ...(
@@ -177,6 +222,46 @@ export default class Ruler extends React.PureComponent {
     private ruler: any;
 
     private verticalTextTop?: CustomText;
+    private verticalTextBottom?: CustomText;
+    private horizontalTextLeft?: CustomText;
+    private horizontalTextRight?: CustomText;
+
+
+    private textWidthTop?: CustomText;
+    private textWidthBottom?: CustomText;
+    private textHeightLeft?: CustomText;
+    private textHeightRight?: CustomText;
+
+    /**
+     * dp = Density-independent Pixel
+     */
+    private unit: 'dp' | 'px' | '%' = 'dp';
+
+    private sensitivity = 1;
+
+    changeSensitivity = () => {
+        this.sensitivity = this.sensitivity === 1
+            ? 0.5
+            : this.sensitivity === 0.5
+                ? 0.1
+                : 1;
+    };
+
+    changeUnit() {
+        if (this.unit === 'dp') {
+            this.unit = 'px';
+        } else if (this.unit === 'px') {
+            this.unit = '%';
+        } else {
+            this.unit = 'dp';
+        }
+
+        this.updateTextInformation();
+    }
+
+    private updateTextInformation = () => {
+
+    };
 
     private getRuler(): RulerType {
 
@@ -189,82 +274,149 @@ export default class Ruler extends React.PureComponent {
 
         const dimentions = Dimensions.get('screen');
         const screenWidth = dimentions.width;
-        const screenWidthPx = pointToPixel(screenWidth);
         const screenHeight = dimentions.height;
-        const screenHeightPx = pointToPixel(screenHeight);
 
-
-        let pointsHorizontal = [];
-        let pointsVertical = [];
-
-        for (let a = 0; a < screenWidthPx; a += MIN_SIZE_PX) {
-            pointsHorizontal.push(pixelToPoint(a));
-        }
-
-        for (let a = 0; a < screenHeightPx; a += MIN_SIZE_PX) {
-            pointsVertical.push(pixelToPoint(a));
-        }
-
-        let top = 50;
+        let top = screenHeight / 2 - 50;
         let topInit = 0;
 
         let height = 100;
         let heightInit = 0;
 
-        let left = 50;
+        let left = screenWidth / 2 - 50;
         let leftInit = 0;
 
-        let width = 50;
+        let width = 100;
         let widthInit = 0;
 
-        let valueLeft = new Animated.Value(left);
-        let valueWidth = new Animated.Value(width);
+        const valueLeft = new Animated.Value(left);
+        const valueWidth = new Animated.Value(width);
+        const valueTop = new Animated.Value(top);
+        const valueHeigth = new Animated.Value(height);
+        const valueBottom = Animated.add(
+            valueTop.interpolate({
+                inputRange: [0, screenHeight],
+                outputRange: [0, screenHeight]
+            }),
+            valueHeigth.interpolate({
+                inputRange: [0, screenHeight],
+                outputRange: [0, screenHeight]
+            })
+        );
+        const valueRight = Animated.add(
+            valueLeft.interpolate({
+                inputRange: [0, screenWidth],
+                outputRange: [0, screenWidth]
+            }),
+            valueWidth.interpolate({
+                inputRange: [0, screenWidth],
+                outputRange: [0, screenWidth]
+            })
+        );
 
-        let valueTop = new Animated.Value(top);
-        let valueHeigth = new Animated.Value(height);
 
-        const updateTexts = () => {
+        const valueLeftCP = new Animated.Value(left);
+        const valueWidthCP = new Animated.Value(width);
+        const valueTopCP = new Animated.Value(top);
+        const valueHeigthCP = new Animated.Value(height);
+        const valueBottomCP = Animated.add(
+            valueTopCP.interpolate({
+                inputRange: [0, screenHeight],
+                outputRange: [0, screenHeight]
+            }),
+            valueHeigthCP.interpolate({
+                inputRange: [0, screenHeight],
+                outputRange: [0, screenHeight]
+            })
+        );
+        const valueRightCP = Animated.add(
+            valueLeftCP.interpolate({
+                inputRange: [0, screenWidth],
+                outputRange: [0, screenWidth]
+            }),
+            valueWidthCP.interpolate({
+                inputRange: [0, screenWidth],
+                outputRange: [0, screenWidth]
+            })
+        );
+
+        this.updateTextInformation = () => {
+            // dp to px = PixelRatio.getPixelSizeForLayoutSize()
+
+            const convert = (valueDP: number, maxDP: number): string => {
+                let value: string = '';
+                if (this.unit === 'dp') {
+                    value = valueDP.toFixed(2);
+                } else if (this.unit === 'px') {
+                    // Converts a layout size (dp) to pixel size (px).
+                    value = '' + PixelRatio.getPixelSizeForLayoutSize(valueDP);
+                } else {
+                    let maxPx = PixelRatio.getPixelSizeForLayoutSize(maxDP);
+                    let valuePx = PixelRatio.getPixelSizeForLayoutSize(valueDP);
+                    value = (valuePx / maxPx * 100).toFixed(2);
+                }
+                return `${value}${this.unit}`;
+            };
+
             requestAnimationFrame(() => {
                 if (this.verticalTextTop) {
-                    let topPct = (top / screenHeight * 100).toFixed(2);
-                    let topPx = Math.round(pointToPixel(top));
-                    this.verticalTextTop.setText(`${top.toFixed(2)}pt\n${topPct}%\n${topPx}px`);
+                    this.verticalTextTop.setText(convert(top, screenHeight));
+                }
+
+                if (this.verticalTextBottom) {
+                    this.verticalTextBottom.setText(convert(screenHeight - (top + height), screenHeight));
+                }
+
+                if (this.horizontalTextLeft) {
+                    this.horizontalTextLeft.setText(convert(left, screenWidth));
+                }
+
+                if (this.horizontalTextRight) {
+                    this.horizontalTextRight.setText(convert(screenWidth - (left + width), screenWidth));
+                }
+
+                if (this.textWidthTop) {
+                    this.textWidthTop.setText(convert(width, screenWidth));
+                }
+
+                if (this.textWidthBottom) {
+                    this.textWidthBottom.setText(convert(width, screenWidth));
+                }
+
+                if (this.textHeightLeft) {
+                    this.textHeightLeft.setText(convert(height, screenHeight));
+                }
+
+                if (this.textHeightRight) {
+                    this.textHeightRight.setText(convert(height, screenHeight));
                 }
             })
+        };
+
+
+        let onPanResponderEnd = () => {
+            valueLeftCP.setValue(left);
+            valueWidthCP.setValue(width);
+            valueTopCP.setValue(top);
+            valueHeigthCP.setValue(height);
         };
 
         this.ruler = {
             screenWidth: screenWidth,
             screenHeight: screenHeight,
             minSize: pixelToPoint(MIN_SIZE_PX),
-            points: {
-                vertical: pointsVertical,
-                horizontal: pointsHorizontal
-            },
             valueTop: valueTop,
             valueLeft: valueLeft,
             valueWidth: valueWidth,
             valueHeigth: valueHeigth,
-            valueBottom: Animated.add(
-                valueTop.interpolate({
-                    inputRange: [0, screenHeight],
-                    outputRange: [0, screenHeight]
-                }),
-                valueHeigth.interpolate({
-                    inputRange: [0, screenHeight],
-                    outputRange: [0, screenHeight]
-                })
-            ),
-            valueRight: Animated.add(
-                valueLeft.interpolate({
-                    inputRange: [0, screenWidth],
-                    outputRange: [0, screenWidth]
-                }),
-                valueWidth.interpolate({
-                    inputRange: [0, screenWidth],
-                    outputRange: [0, screenWidth]
-                })
-            ),
+            valueBottom: valueBottom,
+            valueRight: valueRight,
+            //
+            valueTopCP: valueTopCP,
+            valueLeftCP: valueLeftCP,
+            valueWidthCP: valueWidthCP,
+            valueHeigthCP: valueHeigthCP,
+            valueBottomCP: valueBottomCP,
+            valueRightCP: valueRightCP,
             panCenter: PanResponder.create({
                 onPanResponderGrant: () => {
                     topInit = top;
@@ -273,11 +425,18 @@ export default class Ruler extends React.PureComponent {
                     heightInit = height;
                 },
                 onPanResponderMove: (event, gestureState) => {
-                    const maxRight = (leftInit + widthInit) - MIN_SIZE;
-                    const maxBottom = (topInit + heightInit) - MIN_SIZE;
+                    const maxLeft = (screenWidth - width);
+                    const maxTop = (screenHeight - height);
 
-                    updateTexts();
+                    top = Math.max(0, Math.min(maxTop, (topInit + gestureState.dy * this.sensitivity)));
+                    valueTop.setValue(top);
+
+                    left = Math.max(0, Math.min(maxLeft, (leftInit + gestureState.dx * this.sensitivity)));
+                    valueLeft.setValue(left);
+
+                    this.updateTextInformation();
                 },
+                onPanResponderEnd: onPanResponderEnd,
                 onStartShouldSetPanResponder: (event, gestureState) => true,
             }),
             panTopLeft: PanResponder.create({
@@ -291,10 +450,10 @@ export default class Ruler extends React.PureComponent {
                     const maxRight = (leftInit + widthInit) - MIN_SIZE;
                     const maxBottom = (topInit + heightInit) - MIN_SIZE;
 
-                    top = Math.max(0, Math.min(maxBottom, (topInit + gestureState.dy)));
+                    top = Math.max(0, Math.min(maxBottom, (topInit + gestureState.dy * this.sensitivity)));
                     valueTop.setValue(top);
 
-                    left = Math.max(0, Math.min(maxRight, (leftInit + gestureState.dx)));
+                    left = Math.max(0, Math.min(maxRight, (leftInit + gestureState.dx * this.sensitivity)));
                     valueLeft.setValue(left);
 
                     width = maxRight - left + MIN_SIZE;
@@ -303,8 +462,9 @@ export default class Ruler extends React.PureComponent {
                     height = maxBottom - top + MIN_SIZE;
                     valueHeigth.setValue(height);
 
-                    updateTexts();
+                    this.updateTextInformation();
                 },
+                onPanResponderEnd: onPanResponderEnd,
                 onStartShouldSetPanResponder: (event, gestureState) => true,
             }),
             panTopRight: PanResponder.create({
@@ -316,17 +476,18 @@ export default class Ruler extends React.PureComponent {
                 onPanResponderMove: (event, gestureState) => {
                     const maxBottom = (topInit + heightInit) - MIN_SIZE;
 
-                    top = Math.max(0, Math.min(maxBottom, (topInit + gestureState.dy)));
+                    top = Math.max(0, Math.min(maxBottom, (topInit + gestureState.dy * this.sensitivity)));
                     valueTop.setValue(top);
 
                     height = maxBottom - top + MIN_SIZE;
                     valueHeigth.setValue(height);
 
-                    width = Math.max(MIN_SIZE, Math.min(screenWidth, (widthInit + gestureState.dx)));
+                    width = Math.max(MIN_SIZE, Math.min(screenWidth, (widthInit + gestureState.dx * this.sensitivity)));
                     valueWidth.setValue(width);
 
-                    updateTexts();
+                    this.updateTextInformation();
                 },
+                onPanResponderEnd: onPanResponderEnd,
                 onStartShouldSetPanResponder: (event, gestureState) => true,
             }),
             panBottomLeft: PanResponder.create({
@@ -338,17 +499,18 @@ export default class Ruler extends React.PureComponent {
                 onPanResponderMove: (event, gestureState) => {
                     const maxRight = (leftInit + widthInit) - MIN_SIZE;
 
-                    left = Math.max(0, Math.min(maxRight, (leftInit + gestureState.dx)));
+                    left = Math.max(0, Math.min(maxRight, (leftInit + gestureState.dx * this.sensitivity)));
                     valueLeft.setValue(left);
 
                     width = maxRight - left + MIN_SIZE;
                     valueWidth.setValue(width);
 
-                    height = Math.max(MIN_SIZE, Math.min(screenHeight, (heightInit + gestureState.dy)));
+                    height = Math.max(MIN_SIZE, Math.min(screenHeight, (heightInit + gestureState.dy * this.sensitivity)));
                     valueHeigth.setValue(height);
 
-                    updateTexts();
+                    this.updateTextInformation();
                 },
+                onPanResponderEnd: onPanResponderEnd,
                 onStartShouldSetPanResponder: (event, gestureState) => true,
             }),
             panBottomRight: PanResponder.create({
@@ -357,14 +519,15 @@ export default class Ruler extends React.PureComponent {
                     heightInit = height;
                 },
                 onPanResponderMove: (event, gestureState) => {
-                    width = Math.max(MIN_SIZE, Math.min(screenWidth, (widthInit + gestureState.dx)));
+                    width = Math.max(MIN_SIZE, Math.min(screenWidth, (widthInit + gestureState.dx * this.sensitivity)));
                     valueWidth.setValue(width);
 
-                    height = Math.max(MIN_SIZE, Math.min(screenHeight, (heightInit + gestureState.dy)));
+                    height = Math.max(MIN_SIZE, Math.min(screenHeight, (heightInit + gestureState.dy * this.sensitivity)));
                     valueHeigth.setValue(height);
 
-                    updateTexts();
+                    this.updateTextInformation();
                 },
+                onPanResponderEnd: onPanResponderEnd,
                 onStartShouldSetPanResponder: (event, gestureState) => true,
             })
         };
@@ -377,8 +540,8 @@ export default class Ruler extends React.PureComponent {
         const screenWidth = ruler.screenWidth;
         const screenHeight = ruler.screenHeight;
 
-        const color = '#008fff';
-        const colorBG = '#008fff33';
+        const color = '#18A0FB';
+        const colorBG = '#18A0FB33';
 
         const verticalCenterSquare = Animated.add(
             ruler.valueLeft,
@@ -389,9 +552,11 @@ export default class Ruler extends React.PureComponent {
         );
 
         const verticalCenterSquareText = verticalCenterSquare.interpolate({
-            inputRange: [0, screenWidth - 65, screenWidth - 60, screenWidth],
-            outputRange: [5, screenWidth - 55, screenWidth - 105, screenWidth - 55]
+            inputRange: [0, 30, 33, screenWidth - 33, screenWidth - 30, screenWidth],
+            outputRange: [2, 33, 3, screenWidth - 62, screenWidth - 92, screenWidth - 62]
         });
+
+        const verticalCenterSquareTextLeft = verticalCenterSquareText;
 
         const horizontalCenterSquare = Animated.add(
             ruler.valueTop,
@@ -402,26 +567,21 @@ export default class Ruler extends React.PureComponent {
         );
 
         const horizontalCenterSquareText = horizontalCenterSquare.interpolate({
-            inputRange: [0, screenHeight - 65, screenHeight - 60, screenHeight],
-            outputRange: [5, screenHeight - 55, screenHeight - 105, screenHeight - 55]
+            inputRange: [0, screenHeight - 63, screenHeight - 60, screenHeight],
+            outputRange: [3, screenHeight - 60, screenHeight - 73, screenHeight - 12]
         });
-
 
         const verticalTextStyle = {
             position: 'absolute',
             fontSize: 9,
             lineHeight: 11,
-            width: 40,
-            height: 40,
-            top: -20,
-            borderRadius: 4,
-            // backgroundColor: colorBG,
-            // borderWidth: StyleSheet.hairlineWidth,
-            borderColor: color,
-            color: color,
+            width: 60,
+            color: '#fff',
             fontFamily: 'System',
             textAlignVertical: 'center',
-            textAlign: 'center'
+            textAlign: 'center',
+            backgroundColor: color,
+            borderRadius: 2,
         };
 
         const horizontalTextStyle = {
@@ -438,7 +598,6 @@ export default class Ruler extends React.PureComponent {
             })
         );
 
-
         const sideVerticalScale = ruler.valueHeigth.interpolate({
             inputRange: [0, screenHeight],
             outputRange: [0, 1]
@@ -451,191 +610,113 @@ export default class Ruler extends React.PureComponent {
                 outputRange: [-screenWidth / 2, 0]
             })
         );
+
         let sideHorizontalScale = ruler.valueWidth.interpolate({
             inputRange: [0, screenWidth],
             outputRange: [0, 1]
         });
+
         return (
             <View style={[StyleSheet.absoluteFill, {zIndex: 5000}]}>
 
-                {/*Vertical Text Top*/}
-                <CustomText
-                    ref={(ref) => {
-                        this.verticalTextTop = ref || undefined;
-                    }}
-                    style={[
-                        verticalTextStyle,
-                        {
-                            opacity: ruler.valueTop.interpolate({
-                                inputRange: [15, 40],
-                                outputRange: [0, 1],
-                                extrapolate: 'clamp'
-                            }),
-                            transform: [
-                                {
-                                    translateY: ruler.valueTop.interpolate({
-                                        inputRange: [0, 40, screenHeight],
-                                        outputRange: [-40, 15, screenHeight / 2]
-                                    })
-                                },
-                                {translateX: verticalCenterSquareText}
-                            ],
-                        }
-                    ]}
-                >
-                    {'80%\n60p\n1030px'}
-                </CustomText>
-
-                {/*Vertical Text Bottom*/}
-                <Animated.Text
-                    style={[
-                        verticalTextStyle,
-                        {
-                            opacity: ruler.valueBottom.interpolate({
-                                inputRange: [screenHeight - 40, screenHeight - 15],
-                                outputRange: [1, 0],
-                                extrapolate: 'clamp'
-                            }),
-                            transform: [
-                                {
-                                    translateY: ruler.valueBottom.interpolate({
-                                        inputRange: [0, screenHeight - 40, screenHeight],
-                                        outputRange: [screenHeight / 2, screenHeight - 15, screenHeight + 40]
-                                    })
-                                },
-                                {translateX: verticalCenterSquareText}
-                            ],
-                        }
-                    ]}
-                >
-                    {'80%\n60p\n1030px'}
-                </Animated.Text>
-
-                {/*Horizontal Text left*/}
-                <Animated.Text
-                    style={[
-                        horizontalTextStyle,
-                        {
-                            opacity: ruler.valueLeft.interpolate({
-                                inputRange: [15, 40],
-                                outputRange: [0, 1],
-                                extrapolate: 'clamp'
-                            }),
-                            transform: [
-                                {
-                                    translateX: ruler.valueLeft.interpolate({
-                                        inputRange: [0, 40, screenHeight],
-                                        outputRange: [-40, 15, screenHeight / 2]
-                                    })
-                                },
-                                {translateY: horizontalCenterSquareText}
-                            ],
-                        }
-                    ]}
-                >
-                    {'80%\n60p\n1030px'}
-                </Animated.Text>
-
-                {/*Horizontal Text Right*/}
-                <Animated.Text
-                    style={[
-                        horizontalTextStyle,
-                        {
-                            opacity: ruler.valueRight.interpolate({
-                                inputRange: [screenWidth - 40, screenWidth - 15],
-                                outputRange: [1, 0],
-                                extrapolate: 'clamp'
-                            }),
-                            transform: [
-                                {
-                                    translateX: ruler.valueRight.interpolate({
-                                        inputRange: [0, screenWidth - 40, screenWidth],
-                                        outputRange: [screenWidth / 2, screenWidth - 15, screenWidth + 40]
-                                    })
-                                },
-                                {translateY: horizontalCenterSquareText}
-                            ],
-                        }
-                    ]}
-                >
-                    {'80%\n60p\n1030px'}
-                </Animated.Text>
-
-                {/*Vertical Line Top*/}
                 <Animated.View
                     style={
                         [
                             {
                                 position: 'absolute',
-                                borderColor: color,
-                                height: screenHeight,
-                                top: -screenHeight,
-                                borderRightWidth: 1,
                                 transform: [
-                                    {translateY: ruler.valueTop},
                                     {translateX: verticalCenterSquare}
                                 ],
                             }
                         ]
                     }
-                />
+                >
+                    {/*Vertical Line Top*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    height: screenHeight,
+                                    top: -screenHeight,
+                                    borderRightWidth: 1,
+                                    transform: [
+                                        {translateY: ruler.valueTop}
+                                    ]
+                                }
+                            ]
+                        }
+                    />
 
-                {/*Vertical Line Bottom*/}
+                    {/*Vertical Line Bottom*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    height: screenHeight,
+                                    top: 0,
+                                    borderRightWidth: 1,
+                                    transform: [
+                                        {translateY: ruler.valueBottom}
+                                    ]
+                                }
+                            ]
+                        }
+                    />
+                </Animated.View>
+
                 <Animated.View
                     style={
                         [
                             {
                                 position: 'absolute',
-                                borderColor: color,
-                                height: screenHeight,
-                                top: 0,
-                                borderRightWidth: 1,
-                                transform: [
-                                    {translateY: ruler.valueBottom},
-                                    {translateX: verticalCenterSquare}
-                                ],
-                            }
-                        ]
-                    }
-                />
-
-                {/*Vertical Line Left*/}
-                <Animated.View
-                    style={
-                        [
-                            {
-                                position: 'absolute',
-                                borderColor: color,
-                                width: screenWidth,
-                                left: -screenWidth,
-                                borderTopWidth: 1,
-                                transform: [
-                                    {translateY: horizontalCenterSquare},
-                                    {translateX: ruler.valueLeft}
-                                ],
-                            }
-                        ]
-                    }
-                />
-
-                {/*Vertical Line Right*/}
-                <Animated.View
-                    style={
-                        [
-                            {
-                                position: 'absolute',
-                                borderColor: color,
-                                width: screenWidth,
-                                left: 0,
-                                borderTopWidth: 1,
                                 transform: [
                                     {translateY: horizontalCenterSquare},
-                                    {translateX: ruler.valueRight}
                                 ],
                             }
                         ]
                     }
-                />
+                >
+                    {/*Horizontal Line Left*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    width: screenWidth,
+                                    left: -screenWidth,
+                                    borderTopWidth: 1,
+                                    transform: [
+                                        {translateX: ruler.valueLeft}
+                                    ],
+                                }
+                            ]
+                        }
+                    />
+
+                    {/*Horizontal Line Right*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    width: screenWidth,
+                                    left: 0,
+                                    borderTopWidth: 1,
+                                    transform: [
+                                        {translateX: ruler.valueRight}
+                                    ],
+                                }
+                            ]
+                        }
+                    />
+                </Animated.View>
+
 
                 {/*Side Left*/}
                 <Animated.View
@@ -721,108 +802,572 @@ export default class Ruler extends React.PureComponent {
                     }
                 />
 
-                {/*Square Top Left*/}
                 <Animated.View
                     style={
                         [
                             {
                                 position: 'absolute',
-                                borderColor: color,
-                                width: 16,
-                                height: 16,
-                                left: -16,
+                                transform: [
+                                    {translateY: ruler.valueTop}
+                                ],
+                            }
+                        ]
+                    }
+                >
+                    {/*Square Top Left*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    width: 8,
+                                    height: 8,
+                                    left: -8,
+                                    top: -8,
+                                    borderWidth: 1,
+                                    backgroundColor: colorBG,
+                                    transform: [
+                                        {translateX: ruler.valueLeft}
+                                    ]
+                                }
+                            ]
+                        }
+                    />
+
+                    {/*Square Top Right*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    width: 8,
+                                    height: 8,
+                                    left: 0,
+                                    top: -8,
+                                    borderWidth: 1,
+                                    backgroundColor: colorBG,
+                                    transform: [
+                                        {translateX: ruler.valueRight}
+                                    ]
+                                }
+                            ]
+                        }
+                    />
+                </Animated.View>
+
+                <Animated.View
+                    style={
+                        [
+                            {
+                                position: 'absolute',
+                                transform: [
+                                    {translateY: ruler.valueBottom}
+                                ]
+                            }
+                        ]
+                    }
+                >
+                    {/*Square Bottom Left*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    width: 8,
+                                    height: 8,
+                                    top: 0,
+                                    left: -8,
+                                    borderWidth: 1,
+                                    backgroundColor: colorBG,
+                                    transform: [
+                                        {translateX: ruler.valueLeft}
+                                    ]
+                                }
+                            ]
+                        }
+                    />
+
+                    {/*Square Bottom Right*/}
+                    <Animated.View
+                        style={
+                            [
+                                {
+                                    position: 'absolute',
+                                    borderColor: color,
+                                    width: 8,
+                                    height: 8,
+                                    top: 0,
+                                    left: 0,
+                                    borderWidth: 1,
+                                    backgroundColor: colorBG,
+                                    transform: [
+                                        {translateX: ruler.valueRight}
+                                    ]
+                                }
+                            ]
+                        }
+                    />
+                </Animated.View>
+
+
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        transform: [
+                            {translateX: verticalCenterSquareText}
+                        ]
+                    }}
+                >
+                    <Animated.View
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            height: screenHeight,
+                            backgroundColor: 'blue',
+                            transform: [
+                                {translateX: verticalCenterSquareText}
+                            ]
+                        }}
+                    >
+                    </Animated.View>
+                    {/*Vertical Text Top*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.verticalTextTop !== ref) {
+                                this.verticalTextTop = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            verticalTextStyle,
+                            {
+                                opacity: ruler.valueTop.interpolate({
+                                    inputRange: [0, 30],
+                                    outputRange: [0, 1],
+                                    extrapolate: 'clamp'
+                                }),
+                                transform: [
+                                    {
+                                        translateY: Animated.subtract(
+                                            ruler.valueTop.interpolate({
+                                                inputRange: [0, 28, screenHeight],
+                                                outputRange: [-15, 0, screenHeight / 2]
+                                            }),
+                                            ruler.valueWidth.interpolate({
+                                                inputRange: [60, 65],
+                                                outputRange: [6, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    }
+                                ],
+                            }
+                        ]}
+                    />
+
+                    {/*Vertical Text Bottom*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.verticalTextBottom !== ref) {
+                                this.verticalTextBottom = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            verticalTextStyle,
+                            {
+                                opacity: ruler.valueBottom.interpolate({
+                                    inputRange: [screenHeight - 30, screenHeight - 15],
+                                    outputRange: [1, 0],
+                                    extrapolate: 'clamp'
+                                }),
+                                transform: [
+                                    {
+                                        translateY: Animated.subtract(
+                                            ruler.valueBottom.interpolate({
+                                                inputRange: [0, screenHeight - 30, screenHeight],
+                                                outputRange: [screenHeight / 2, screenHeight - 15, screenHeight + 15]
+                                            }),
+                                            ruler.valueWidth.interpolate({
+                                                inputRange: [60, 65],
+                                                outputRange: [-7, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    },
+                                ],
+                            }
+                        ]}
+                    />
+
+                    {/*Text Width Top*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.textWidthTop !== ref) {
+                                this.textWidthTop = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            verticalTextStyle,
+                            {
+                                opacity: ruler.valueTop.interpolate({
+                                    inputRange: [0, 15],
+                                    outputRange: [0, 1],
+                                    extrapolate: 'clamp'
+                                }),
+                                transform: [
+                                    {
+                                        translateY: Animated.subtract(
+                                            ruler.valueTop.interpolate({
+                                                inputRange: [0, 15, screenHeight],
+                                                outputRange: [-20, 0, screenHeight - 15]
+                                            }),
+                                            ruler.valueWidth.interpolate({
+                                                inputRange: [60, 65],
+                                                outputRange: [6, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    },
+                                ],
+                            }
+                        ]}
+                    />
+
+                    {/*Text Width Bottom*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.textWidthBottom !== ref) {
+                                this.textWidthBottom = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            verticalTextStyle,
+                            {
+                                // left: -60,
+                                opacity: ruler.valueBottom.interpolate({
+                                    inputRange: [screenHeight - 15, screenHeight],
+                                    outputRange: [1, 0],
+                                    extrapolate: 'clamp'
+                                }),
+                                transform: [
+                                    {
+                                        translateY: Animated.subtract(
+                                            ruler.valueBottom.interpolate({
+                                                inputRange: [0, screenHeight],
+                                                outputRange: [3, screenHeight + 3]
+                                            }),
+                                            ruler.valueWidth.interpolate({
+                                                inputRange: [60, 65],
+                                                outputRange: [-8, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    },
+                                ],
+                            }
+                        ]}
+                    />
+                </Animated.View>
+
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        transform: [
+                            {translateY: horizontalCenterSquareText}
+                        ]
+                    }}
+                >
+
+                    {/*Horizontal Text left*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.horizontalTextLeft !== ref) {
+                                this.horizontalTextLeft = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            horizontalTextStyle,
+                            {
+                                opacity: ruler.valueLeft.interpolate({
+                                    inputRange: [15, 60],
+                                    outputRange: [0, 1],
+                                    extrapolate: 'clamp',
+
+                                }),
+                                transform: [
+                                    {
+                                        translateX: Animated.subtract(
+                                            ruler.valueLeft.interpolate({
+                                                inputRange: [0, 60, screenWidth],
+                                                outputRange: [-44, 17, screenWidth / 2]
+                                            }),
+                                            ruler.valueHeigth.interpolate({
+                                                inputRange: [30, 35],
+                                                outputRange: [7, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    }
+                                ],
+                            }
+                        ]}
+                    />
+
+                    {/*Horizontal Text Right*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.horizontalTextRight !== ref) {
+                                this.horizontalTextRight = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            horizontalTextStyle,
+                            {
+                                opacity: ruler.valueRight.interpolate({
+                                    inputRange: [screenWidth - 60, screenWidth],
+                                    outputRange: [1, 0],
+                                    extrapolate: 'clamp'
+                                }),
+                                transform: [
+                                    {
+                                        translateX: Animated.add(
+                                            ruler.valueRight.interpolate({
+                                                inputRange: [0, screenWidth - 60, screenWidth],
+                                                outputRange: [screenWidth / 2, screenWidth - 38, screenWidth + 24]
+                                            }),
+                                            ruler.valueHeigth.interpolate({
+                                                inputRange: [30, 35],
+                                                outputRange: [8, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    }
+                                ],
+                            }
+                        ]}
+                    />
+
+
+                    {/*Text Height Left*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.textHeightLeft !== ref) {
+                                this.textHeightLeft = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            horizontalTextStyle,
+                            {
                                 top: -16,
-                                borderWidth: 1,
-                                // borderTopLeftRadius: 16,
-                                backgroundColor: colorBG,
-                                transform: [
-                                    {translateY: ruler.valueTop},
-                                    {translateX: ruler.valueLeft}
-                                ]
-                            }
-                        ]
-                    }
-                />
+                                opacity: ruler.valueLeft.interpolate({
+                                    inputRange: [15, 60],
+                                    outputRange: [0, 1],
+                                    extrapolate: 'clamp',
 
-                {/*Square Top Right*/}
-                <Animated.View
-                    style={
-                        [
+                                }),
+                                transform: [
+                                    {
+                                        translateX: Animated.subtract(
+                                            ruler.valueLeft.interpolate({
+                                                inputRange: [0, 60, screenWidth],
+                                                outputRange: [-44, 17, screenWidth - 44]
+                                            }),
+                                            ruler.valueHeigth.interpolate({
+                                                inputRange: [30, 35],
+                                                outputRange: [7, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    }
+                                ],
+                            }
+                        ]}
+                    />
+
+                    {/*Text Height Right*/}
+                    <CustomText
+                        ref={(ref) => {
+                            if (this.textHeightRight !== ref) {
+                                this.textHeightRight = ref || undefined;
+                                this.updateTextInformation();
+                            }
+                        }}
+                        style={[
+                            horizontalTextStyle,
                             {
-                                position: 'absolute',
-                                borderColor: color,
-                                width: 16,
-                                height: 16,
-                                left: 0,
                                 top: -16,
-                                borderWidth: 1,
-                                // borderTopRightRadius: 16,
-                                backgroundColor: colorBG,
-                                transform: [
-                                    {translateY: ruler.valueTop},
-                                    {translateX: ruler.valueRight}
-                                ]
-                            }
-                        ]
-                    }
-                />
+                                opacity: ruler.valueRight.interpolate({
+                                    inputRange: [screenWidth - 60, screenWidth],
+                                    outputRange: [1, 0],
+                                    extrapolate: 'clamp',
 
-                {/*Square Bottom Left*/}
+                                }),
+                                transform: [
+                                    {
+                                        translateX: Animated.add(
+                                            ruler.valueRight.interpolate({
+                                                inputRange: [0, screenWidth - 60, screenWidth],
+                                                outputRange: [24, screenWidth - 38, screenWidth + 24]
+                                            }),
+                                            ruler.valueHeigth.interpolate({
+                                                inputRange: [30, 35],
+                                                outputRange: [8, 0],
+                                                extrapolate: 'clamp'
+                                            })
+                                        )
+                                    }
+                                ],
+                            }
+                        ]}
+                    />
+
+                </Animated.View>
+
+                {/*Drag - Background*/}
                 <Animated.View
                     style={
                         [
                             {
                                 position: 'absolute',
-                                borderColor: color,
-                                width: 16,
-                                height: 16,
-                                top: 0,
-                                left: -16,
-                                borderWidth: 1,
-                                // borderBottomLeftRadius: 16,
-                                backgroundColor: colorBG,
-                                transform: [
-                                    {translateY: ruler.valueBottom},
-                                    {translateX: ruler.valueLeft}
-                                ]
-                            }
-                        ]
-                    }
-                />
-
-                {/*Square Bottom Right*/}
-                <Animated.View
-                    style={
-                        [
-                            {
-                                position: 'absolute',
-                                borderColor: color,
-                                width: 16,
-                                height: 16,
-                                top: 0,
+                                height: screenHeight,
+                                width: screenWidth,
                                 left: 0,
-                                borderWidth: 1,
-                                // borderBottomRightRadius: 16,
-                                backgroundColor: colorBG,
+                                top: 0,
+                                // opacity: 0.2,
+                                // backgroundColor: '#ccc',
                                 transform: [
-                                    {translateY: ruler.valueBottom},
-                                    {translateX: ruler.valueRight}
-                                ]
+                                    {
+                                        translateX: Animated.add(
+                                            ruler.valueLeftCP,
+                                            ruler.valueWidthCP.interpolate({
+                                                inputRange: [0, screenWidth],
+                                                outputRange: [-screenWidth / 2, 0]
+                                            })
+                                        )
+                                    },
+                                    {
+                                        scaleX: ruler.valueWidthCP.interpolate({
+                                            inputRange: [0, screenWidth],
+                                            outputRange: [0, 1]
+                                        })
+                                    },
+                                    {
+                                        translateY: Animated.add(
+                                            ruler.valueTopCP,
+                                            ruler.valueHeigthCP.interpolate({
+                                                inputRange: [0, screenHeight],
+                                                outputRange: [-screenHeight / 2, 0]
+                                            })
+                                        )
+                                    },
+                                    {
+                                        scaleY: ruler.valueHeigthCP.interpolate({
+                                            inputRange: [0, screenHeight],
+                                            outputRange: [0, 1]
+                                        })
+                                    }
+                                ],
                             }
                         ]
                     }
+                    {
+                        ...ruler.panCenter.panHandlers
+                    }
+                    pointerEvents={'box-only'}
                 />
 
-                {/*Corner Top Left*/}
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        bottom: 20,
+                        left: 50,
+                        opacity: ruler.valueBottom.interpolate({
+                            inputRange: [screenHeight - 60, screenHeight - 35],
+                            outputRange: [1, 0],
+                            extrapolate: 'clamp'
+                        })
+                    }}
+                >
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.changeUnit();
+                        }}
+                    >
+                        <CustomText
+                            text={'unit'}
+                            style={{
+                                height: 30,
+                                fontSize: 10,
+                                color: '#FFF',
+                                borderRadius: 4,
+                                textAlign: 'center',
+                                fontFamily: 'System',
+                                paddingHorizontal: 6,
+                                textAlignVertical: 'center',
+                                backgroundColor: '#2c2c2c',
+                            }}
+                        />
+                    </TouchableOpacity>
+                </Animated.View>
+
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        bottom: 20,
+                        left: 90,
+                        opacity: ruler.valueBottom.interpolate({
+                            inputRange: [screenHeight - 60, screenHeight - 35],
+                            outputRange: [1, 0],
+                            extrapolate: 'clamp'
+                        })
+                    }}
+                >
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.changeSensitivity();
+                        }}
+                    >
+                        <CustomText
+                            text={'sensitivity'}
+                            style={{
+                                height: 30,
+                                fontSize: 10,
+                                color: '#FFF',
+                                borderRadius: 4,
+                                textAlign: 'center',
+                                fontFamily: 'System',
+                                paddingHorizontal: 6,
+                                textAlignVertical: 'center',
+                                backgroundColor: '#2c2c2c',
+                            }}
+                        />
+                    </TouchableOpacity>
+                </Animated.View>
+
+                {/*Drag - Corner Top Left*/}
                 <DragCorner ruler={ruler} bottom={false} right={false}/>
 
-                {/*Corner Top Right*/}
+                {/*Drag - Corner Top Right*/}
                 <DragCorner ruler={ruler} bottom={false} right={true}/>
 
-                {/*Corner Bottom Left*/}
+                {/*Drag - Corner Bottom Left*/}
                 <DragCorner ruler={ruler} bottom={true} right={false}/>
 
-                {/*Corner Bottom Right*/}
+                {/*Drag - Corner Bottom Right*/}
                 <DragCorner ruler={ruler} bottom={true} right={true}/>
             </View>
         )

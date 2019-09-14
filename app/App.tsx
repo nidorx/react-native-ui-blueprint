@@ -1,5 +1,5 @@
 import React from 'react';
-import {StatusBar, Text} from 'react-native';
+import {StatusBar, StyleSheet, Text, View} from 'react-native';
 import Blueprint from "../src/lib/Blueprint";
 
 
@@ -13,9 +13,11 @@ export default class App extends React.PureComponent {
                 // }}
             >
                 <StatusBar backgroundColor={'transparent'} translucent={true} barStyle="dark-content"/>
-                <Text>
-                    {'React Native Blueprint'}
-                </Text>
+                <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems:'center'}]}>
+                    <Text>
+                        {'React Native Blueprint'}
+                    </Text>
+                </View>
             </Blueprint>
         );
     }
