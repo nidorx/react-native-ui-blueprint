@@ -4,7 +4,7 @@ import {
     Dimensions,
     Image,
     ImageRequireSource,
-    ImageURISource,
+    ImageURISource, PanResponder,
     PixelRatio,
     StyleSheet,
     Text,
@@ -14,6 +14,18 @@ import {
 import {animateGenericNative} from "./Utils";
 import Ruler from "./Ruler";
 import Grid, {GridLines, Guides} from "./Grid";
+
+const tiny = 8;
+const small = 16;
+const base = 24;
+const large = 48;
+const extra = 64;
+
+const MAX_ZOOM = extra * 2;
+
+const dimentions = Dimensions.get('screen');
+const screenWidth = dimentions.width;
+const screenHeight = dimentions.height;
 
 export type BlueprintProps = {
     /**
@@ -38,6 +50,7 @@ export type BlueprintProps = {
 }
 
 type BlueprintState = {
+    zoom: boolean;
     showRuler: boolean;
     gridAlign: 'side' | 'center' | 'left' | 'right' | 'hidden';
     imageSize?: { width: number, height: number, uri: string };
@@ -50,10 +63,50 @@ type BlueprintState = {
 export default class Blueprint extends React.PureComponent<BlueprintProps, BlueprintState> {
 
     state: BlueprintState = {
+        zoom: false,
         showRuler: false,
         gridAlign: 'hidden',
         photos: []
     };
+
+    private animatedZoom = new Animated.Value(0);
+
+    private animatedZoomSlideX = new Animated.Value(0);
+
+    private animatedZoomSlideY = new Animated.Value(0);
+
+    private x = 0;
+    private y = 0;
+    private z = 0;
+    private zInit = 0;
+    private xInit = 0;
+    private yInit = 0;
+
+    private panSliderZoom = PanResponder.create({
+        onPanResponderGrant: () => {
+            this.zInit = this.z;
+        },
+        onPanResponderMove: (event, gestureState) => {
+            this.z = Math.max(0, Math.min(MAX_ZOOM, (this.zInit + gestureState.dx * 0.8)));
+            this.animatedZoom.setValue(this.z);
+        },
+        onStartShouldSetPanResponder: (event, gestureState) => true,
+    });
+
+    private panSliderZoomSlide = PanResponder.create({
+        onPanResponderGrant: () => {
+            this.xInit = this.x;
+            this.yInit = this.y;
+        },
+        onPanResponderMove: (event, gestureState) => {
+            this.x = Math.max(-(screenWidth / 2), Math.min((screenWidth / 2), (this.xInit + gestureState.dx)));
+            this.animatedZoomSlideX.setValue(this.x);
+
+            this.y = Math.max(-(screenHeight / 2), Math.min((screenHeight / 2), (this.yInit + gestureState.dy)));
+            this.animatedZoomSlideY.setValue(this.y);
+        },
+        onStartShouldSetPanResponder: (event, gestureState) => true,
+    });
 
     private animatedVisibility = new Animated.Value(0);
 
@@ -125,23 +178,64 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
 
         const {width, height} = Dimensions.get('screen');
 
-        const tiny = 8;
-        const small = 16;
-        const base = 24;
-        const large = 48;
-        const extra = 64;
 
         return (
-            <View style={StyleSheet.absoluteFill}>
+            <View style={[StyleSheet.absoluteFill, {backgroundColor: '#EDEDED'}]}>
 
                 {/* Content */}
                 <Animated.View
                     style={[
-                        StyleSheet.absoluteFill
+                        StyleSheet.absoluteFill,
+                        {
+                            backgroundColor: '#FFF',
+                            transform: [
+                                {
+                                    scale: this.animatedZoom.interpolate({
+                                        inputRange: [0, MAX_ZOOM],
+                                        outputRange: [1, 2]
+                                    })
+                                },
+                                {
+                                    translateX: this.animatedZoomSlideX.interpolate({
+                                        inputRange: [-screenWidth, screenWidth],
+                                        outputRange: [-screenWidth, screenWidth]
+                                    })
+                                },
+                                {
+                                    translateY: this.animatedZoomSlideY.interpolate({
+                                        inputRange: [-screenHeight, screenHeight],
+                                        outputRange: [-screenHeight, screenHeight]
+                                    })
+                                }
+                            ]
+                        }
                     ]}
                     pointerEvents={'box-none'}
                 >
                     {this.props.children}
+
+                    {
+                        this.state.gridAlign !== 'hidden'
+                            ? (
+                                <Grid
+                                    grid={this.props.grid}
+                                    guides={this.props.guides}
+                                    align={this.state.gridAlign}
+                                />
+                            )
+                            : null
+                    }
+
+
+                    {
+                        this.state.showRuler ? (
+                            <Ruler
+                                ref={(ruler) => {
+                                    this.ruler = ruler || undefined;
+                                }}
+                            />
+                        ) : null
+                    }
                 </Animated.View>
 
                 {/* Pixel Perfect Image */}
@@ -162,28 +256,6 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                     }
                 </Animated.View>
 
-                {
-                    this.state.gridAlign !== 'hidden'
-                        ? (
-                            <Grid
-                                grid={this.props.grid}
-                                guides={this.props.guides}
-                                align={this.state.gridAlign}
-                            />
-                        )
-                        : null
-                }
-
-
-                {
-                    this.state.showRuler ? (
-                        <Ruler
-                            ref={(ruler) => {
-                                this.ruler = ruler || undefined;
-                            }}
-                        />
-                    ) : null
-                }
 
                 <Animated.View
                     style={[
@@ -194,14 +266,12 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                             bottom: large,
                             justifyContent: 'flex-end',
                             alignItems: 'flex-start',
-                            opacity: this.animatedVisibility.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [0, 0.7]
-                            })
+                            opacity: this.animatedVisibility
                         }
                     ]}
                     pointerEvents={'box-none'}
                 >
+                    {/*Zoom*/}
                     <Animated.View
                         style={{
                             flexDirection: 'row',
@@ -211,7 +281,115 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                 {
                                     translateX: this.animatedVisibility.interpolate({
                                         inputRange: [0, 1],
-                                        outputRange: [-large, small]
+                                        outputRange: [-(large + extra * 2 + tiny), small]
+                                    })
+                                }
+                            ]
+                        }}
+                    >
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.hideSchedule();
+                                this.setState({
+                                    zoom: !this.state.zoom
+                                });
+                            }}
+                            style={{
+                                height: large,
+                                width: large,
+                                borderRadius: large,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderColor: '#2C2C2CAA',
+                                borderWidth: 1
+                            }}
+                        >
+                            <View
+                                style={{
+                                    height: small,
+                                    width: small,
+                                    borderRadius: small,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderColor: '#18A0FB',
+                                    backgroundColor: "#18A0FB33",
+                                    borderWidth: 1,
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontFamily: 'System',
+                                        lineHeight: small * 1.2,
+                                        fontSize: small,
+                                        textAlignVertical: 'center',
+                                        color: '#18A0FB'
+                                    }}
+                                >{'+'}</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        {
+                            this.state.zoom ? (
+                                <React.Fragment>
+                                    <View
+                                        style={{
+                                            height: large - tiny,
+                                            width: extra * 2,
+                                            borderRadius: large - tiny,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginLeft: tiny,
+                                            borderColor: '#2C2C2CAA',
+                                            backgroundColor: "#18A0FB33",
+                                            borderWidth: 1,
+                                            paddingHorizontal: tiny
+                                        }}
+                                        {...this.panSliderZoom.panHandlers}
+                                        pointerEvents={'auto'}
+                                    >
+                                        <Animated.View
+                                            style={{
+                                                position: 'absolute',
+                                                width: '100%',
+                                                height: 1,
+                                                backgroundColor: '#18A0FB'
+                                            }}
+                                            pointerEvents={'none'}
+                                        />
+                                        <Animated.View
+                                            style={{
+                                                width: large - tiny - 1,
+                                                height: large - tiny - 1,
+                                                borderRadius: large - tiny - 1,
+                                                backgroundColor: '#18A0FB',
+                                                transform: [
+                                                    {
+                                                        translateX: this.animatedZoom.interpolate({
+                                                            inputRange: [0, extra * 2],
+                                                            outputRange: [-(extra - ((large - tiny - 1) / 2) - 0.5), (extra - ((large - tiny - 1) / 2) - 1)]
+                                                        })
+                                                    }
+                                                ]
+                                            }}
+                                            pointerEvents={'none'}
+                                        />
+                                    </View>
+                                </React.Fragment>
+                            ) : null
+                        }
+                    </Animated.View>
+
+                    {/*Ruler*/}
+                    <Animated.View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: tiny,
+                            transform: [
+                                {
+                                    translateX: this.animatedVisibility.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-(large + base * 3), small]
                                     })
                                 }
                             ]
@@ -306,7 +484,7 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                         }
                     </Animated.View>
 
-
+                    {/*Grid*/}
                     <Animated.View
                         style={{
                             flexDirection: 'row',
@@ -342,7 +520,8 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 borderColor: '#2C2C2CAA',
-                                borderWidth: 1
+                                borderWidth: 1,
+
                             }}
                         >
                             <View
@@ -374,7 +553,7 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                         </TouchableOpacity>
                     </Animated.View>
 
-
+                    {/*Logo*/}
                     <TouchableOpacity
                         onPress={event => {
                             clearTimeout(this.timeout);
@@ -406,7 +585,92 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                             height={extra}
                         />
                     </TouchableOpacity>
+
+
                 </Animated.View>
+
+                {
+                    this.state.zoom ? (
+                        <React.Fragment>
+                            <Animated.View
+                                style={{
+                                    position: 'absolute',
+                                    left: tiny * 4 + extra * 2 + large,
+                                    bottom: extra + large * 3 + tiny * 3,
+                                    width: large,
+                                    height: large,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 5000,
+                                    opacity: this.animatedVisibility,
+                                    transform: [
+                                        {
+                                            translateX: this.animatedVisibility.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: [-(tiny * 4 + extra * 2 + large * 2), 0]
+                                            })
+                                        }
+                                    ]
+                                }}
+                                pointerEvents={'box-only'}
+                                {...this.panSliderZoomSlide.panHandlers}
+                            >
+                                <Image
+                                    source={require('./../assets/move.png')}
+                                    style={{
+                                        width: large - tiny,
+                                        height: large - tiny,
+                                        tintColor: '#18A0FB'
+                                    }}
+                                    width={large - tiny}
+                                    height={large - tiny}
+                                />
+                            </Animated.View>
+
+                            <Animated.View
+                                style={{
+                                    position: 'absolute',
+                                    left: tiny * 4 + extra * 2 + large * 2,
+                                    bottom: extra + large * 3 + tiny * 3,
+                                    width: large,
+                                    height: large,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 5000,
+                                    opacity: this.animatedVisibility,
+                                    transform: [
+                                        {
+                                            translateX: this.animatedVisibility.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: [-(tiny * 4 + extra * 2 + large * 3), 0]
+                                            })
+                                        }
+                                    ]
+                                }}
+                            >
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.x = this.y = this.z = 0;
+                                        animateGenericNative(this.animatedZoom, 0);
+                                        animateGenericNative(this.animatedZoomSlideX, 0);
+                                        animateGenericNative(this.animatedZoomSlideY, 0);
+                                    }}
+                                >
+                                    <Image
+                                        source={require('./../assets/reset.png')}
+                                        style={{
+                                            width: large - tiny,
+                                            height: large - tiny,
+                                            tintColor: '#18A0FB'
+                                        }}
+                                        width={large - tiny}
+                                        height={large - tiny}
+                                    />
+                                </TouchableOpacity>
+                            </Animated.View>
+                        </React.Fragment>
+                    ) : null
+                }
             </View>
         )
     }
