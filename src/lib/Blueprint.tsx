@@ -35,12 +35,12 @@ export type BlueprintProps = {
     /**
      * Add guides on screen. Percentual, points or pixel. Ex. v50%, h50%, v10px, v10p
      */
-    guides?: Guides;
+    guides?: Guides| false;
 
     /**
      * Allows you to add regularly spaced marker lines on the screen
      */
-    grid?: GridLines;
+    grid?: GridLines | false;
 
     /**
      * Server images

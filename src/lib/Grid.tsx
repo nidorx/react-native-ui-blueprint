@@ -52,12 +52,12 @@ export type GridProps = {
     /**
      * Add guides on screen. Percentual, points or pixel. Ex. v50%, h50%, v10px, v10p
      */
-    guides?: Guides;
+    guides?: Guides | false;
 
     /**
      * Allows you to add regularly spaced marker lines on the screen
      */
-    grid?: GridLines;
+    grid?: GridLines | false;
 
     /**
      * Sets grid alignment
@@ -82,9 +82,9 @@ export default class Grid extends React.PureComponent<GridProps> {
 
         let guides: Guides = [];
 
-        if (this.props.guides) {
+        if (this.props.guides && this.props.guides.length > 0) {
             guides = guides.concat(this.props.guides);
-        } else {
+        } else if (this.props.guides !== false) {
             // Default guides
             guides = [
                 {
@@ -197,7 +197,7 @@ export default class Grid extends React.PureComponent<GridProps> {
                 addGuides(pointToPixel(width), pointToPixel(value.spacing), 'vertical', color, opacity, value.width);
                 addGuides(pointToPixel(height), pointToPixel(value.spacing), 'horizontal', color, opacity, value.width);
             });
-        } else {
+        } else if (this.props.grid !== false) {
             addGuides(pointToPixel(width), pointToPixel(tiny), 'vertical', GRAY, 0.2);
             addGuides(pointToPixel(height), pointToPixel(tiny), 'horizontal', GRAY, 0.2);
             addGuides(pointToPixel(width), pointToPixel(base), 'vertical', MAGENTA, 0.3);

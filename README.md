@@ -92,6 +92,16 @@ When working in teams, designers often use grid, use this tool to verify design 
 
 By default, Blueprint already defines two grids with 8 and 24 dp spacing.
 
+You can completely remove the grid by passing false as parameter.
+
+```jsx
+<Blueprint            
+    grid={false}
+ >
+    ...
+</Blueprint>
+```
+
 #### Alignment
 
 There are 4 horizontal alignment options:
@@ -119,20 +129,31 @@ The grid is created from the defined side.
 
 ### Guide
 
+<div align="center">
+    <img src="./docs/guide.png" />
+</div>
+
 Displays vertical or horizontal guide lines with specific placement. Unlike the grid, the tab does not repeat and allows you to work with three units of measurement: Pixel, [dp] and Percent.
-
-
-By default Blueprint displays one vertical and one horizontal tab, both on 50% of the screen.
 
 ```jsx
 <Blueprint            
     guides={[
         {
-            width: 2,
-            position: 25,
-            unit: '%',
-            color: 'green',
-            orientation: 'vertical'
+            position: 55,
+            orientation: 'vertical',
+            unit: 'dp'
+        },
+        {
+            position: 616,
+            orientation: 'horizontal',
+            unit: 'dp',
+            color:'#ff4aff'
+        },
+        {
+            position: 580,
+            orientation: 'horizontal',
+            unit: 'dp',
+            color:'#ff4aff'
         }
     ]}
  >
@@ -140,14 +161,29 @@ By default Blueprint displays one vertical and one horizontal tab, both on 50% o
 </Blueprint>
 ```
 
+By default Blueprint displays one vertical and one horizontal tab, both on 50% of the screen.
+
+You can completely remove the grid by passing false as parameter.
+
+```jsx
+<Blueprint            
+    grid={false}
+ >
+    ...
+</Blueprint>
+```
+
 #### Guide Properties
+
+
+
 
 | name | type | default | Description |
 |---|---|---|---|
 | `position` | `number`  | -- | The positioning of the guide. When the unit is pixel, expect an integer. |
 | `orientation` | `ENUM['horizontal', 'vertical']` | --| Sets the orientation of the guide |
 | `unit` | `ENUM['%', 'dp', 'px']` | `dp` | The unit of measurement used to set the guide position |
-| `color` | `string` | `GRAY:#828282`, `MAGENTA:#ff4aff` or `BLUE:#18A0FB`| Allows you to set the line color. If not informed, the system will switch between GRAY, BLUE and MAGENTA |
+| `color` | `string` | `BLUE:#18A0FB`| Allows you to set the line color. |
 | `opacity` | `number` | `0.2 + $index * 0.1` | Allows you to set opacity. If not entered, the system automatically calculates a value starting with `0.2` and increasing by `0.1` |
 | `width` | `number` | `StyleSheet.hairlineWidth` (1 pixel) | Lets you set the line width |
 
