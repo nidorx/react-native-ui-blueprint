@@ -15,7 +15,7 @@ import {
 import {animateGenericNative, base, extra, large, small, tiny} from "./Utils";
 import Ruler from "./Ruler";
 import Grid, {GridLines, Guides} from "./Grid";
-import ImageSelect, {ImageInfo} from "./ImageSelect";
+import ImageSelect, {ImageInfo, ImageInfoAsync} from "./ImageSelect";
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -43,9 +43,9 @@ export type BlueprintProps = {
     grid?: GridLines;
 
     /**
-     * Server address
+     * Server images
      */
-    server?: string;
+    imagesAsync?: () => Promise<Array<ImageInfoAsync>>;
 
     /**
      * Add image to pixel-perfect
@@ -59,6 +59,7 @@ type BlueprintState = {
     gridAlign: 'side' | 'center' | 'left' | 'right' | 'hidden';
     showSelectImageModal: boolean;
     image?: ImageInfo;
+    packagerRunning: boolean;
 };
 
 const Slider = (props: { pan: PanResponderInstance, value: Animated.Value }) => {
@@ -122,7 +123,8 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
         zoom: false,
         ruler: false,
         gridAlign: 'hidden',
-        showSelectImageModal: false
+        showSelectImageModal: false,
+        packagerRunning: false
     };
 
     private interacting = false;
@@ -296,6 +298,18 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
             animateGenericNative(this.animatedVisibility, 0);
         }, 4000);
     };
+
+    componentDidMount(): void {
+        fetch('http://localhost:8081/')
+            .then(value => {
+                this.setState({
+                    packagerRunning: true
+                })
+            })
+            .catch(reason => {
+                // ignore
+            })
+    }
 
     render() {
         if (this.props.disabled) {
@@ -754,7 +768,7 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
 
                     {/*Image*/}
                     {
-                        (this.props.images || this.props.server)
+                        (this.props.images || this.props.imagesAsync)
                             ? (
                                 <Animated.View
                                     style={{
@@ -778,12 +792,16 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                         onPress={() => {
                                             this.hideSchedule();
                                             if (this.state.image) {
+
                                                 this.setState({
                                                     image: undefined
                                                 })
                                             } else {
                                                 this.setState({
                                                     showSelectImageModal: !this.state.showSelectImageModal
+                                                }, () => {
+                                                    this.interacting = this.state.showSelectImageModal;
+                                                    this.hideSchedule();
                                                 });
                                             }
                                         }}
@@ -872,6 +890,51 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                             : null
                     }
 
+                    {/* Reload app */}
+                    {
+                        this.state.packagerRunning
+                            ? (
+                                <Animated.View
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        bottom: large * 5 + extra + tiny * 5,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        transform: [
+                                            {
+                                                translateX: this.animatedVisibility.interpolate({
+                                                    inputRange: [0, 1],
+                                                    outputRange: [-(large + small), small]
+                                                })
+                                            }
+                                        ]
+                                    }}
+                                >
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            fetch('http://localhost:8081/reload')
+                                                .then(value => {
+                                                })
+                                                .catch(reason => {
+                                                });
+                                        }}
+                                    >
+                                        <Image
+                                            source={require('./../assets/reset.png')}
+                                            style={{
+                                                width: large,
+                                                height: large,
+                                                tintColor: '#18A0FB'
+                                            }}
+                                            width={large}
+                                            height={large}
+                                        />
+                                    </TouchableOpacity>
+                                </Animated.View>
+                            ) : null
+                    }
+
 
                     {
                         this.state.showSelectImageModal
@@ -898,8 +961,8 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                         bottom={large + extra + tiny - 2}
                                         left={tiny}
                                         height={large * 3 + tiny * 2 + 4}
-                                        server={this.props.server}
                                         images={this.props.images}
+                                        imagesAsync={this.props.imagesAsync}
                                         onSelect={image => {
                                             // Reset values
                                             this.imageX = 0;
@@ -910,6 +973,10 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                                             this.imageYValue.setValue(this.imageY);
                                             this.imageScaleValue.setValue(this.imageScale);
                                             this.imageOpacityValue.setValue(this.imageOpacity);
+
+
+                                            this.interacting = false;
+                                            this.hideSchedule();
 
                                             this.setState({
                                                 image: image,
