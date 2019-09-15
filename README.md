@@ -198,6 +198,8 @@ Adds a scalable ruler to the screen. The ruler is useful for checking component 
 
 Allows you to change the unit of measurement to Pixel, [dp], or Percent.
 
+The ruler also allows you to change the sensitivity to work more accurately. The values are toggled by `1`, `0.5` and `0.1`.
+
 ### Zoom
 
 ### Ghost
