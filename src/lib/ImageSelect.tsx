@@ -13,27 +13,29 @@ import {
 } from 'react-native'
 import {animateGenericNative} from "./Utils";
 
-const DATA = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First Item',
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-];
-
 export type ImageInfo = {
+    thumb: {
+        uri: string;
+        width: number;
+        height: number;
+    };
     width: number;
     height: number;
     uri: string;
     title?: string;
 }
+
+export type ImageInfoAsync = {
+    thumb?: {
+        uri: string;
+        width?: number;
+        height?: number;
+    };
+    width?: number;
+    height?: number;
+    uri: string;
+    title?: string;
+};
 
 export type ImageSelectProps = {
     left: number;
@@ -41,10 +43,9 @@ export type ImageSelectProps = {
     width: number;
     height: number;
     /**
-     * Server address
+     * Server images
      */
-    server?: string;
-
+    imagesAsync?: () => Promise<Array<ImageInfoAsync>>;
     /**
      * Add image to pixel-perfect
      */
@@ -73,7 +74,17 @@ export default class ImageSelect extends React.PureComponent<ImageSelectProps, I
 
     async getImageSize(image: ImageURISource | ImageRequireSource): Promise<ImageInfo> {
         if (typeof image === "number") {
-            return Image.resolveAssetSource(image);
+            let asset = Image.resolveAssetSource(image);
+            return {
+                uri: asset.uri,
+                width: asset.width,
+                height: asset.height,
+                thumb: {
+                    uri: asset.uri,
+                    width: asset.width,
+                    height: asset.height
+                }
+            }
         }
 
         const uri = image.uri as string;
@@ -83,7 +94,12 @@ export default class ImageSelect extends React.PureComponent<ImageSelectProps, I
                 resolve({
                     uri: uri,
                     width: width,
-                    height: height
+                    height: height,
+                    thumb: {
+                        uri: uri,
+                        width: width,
+                        height: height
+                    }
                 })
             }, reject);
         });
@@ -92,9 +108,36 @@ export default class ImageSelect extends React.PureComponent<ImageSelectProps, I
     private getImages = async () => {
         let images: Array<ImageInfo> = [];
 
-        if (this.props.images && this.props.images.length > 0) {
+        if (Array.isArray(this.props.images) && this.props.images.length > 0) {
             let localImages = await Promise.all(this.props.images.map(this.getImageSize));
             images = images.concat(localImages);
+        } else if (this.props.imagesAsync) {
+            let asyncImages = await this.props.imagesAsync();
+            let imagesAsync = await Promise.all(asyncImages.map(async (image) => {
+                if (!image.thumb) {
+                    image.thumb = {
+                        uri: image.uri
+                    };
+
+                    let size = await this.getImageSize({
+                        uri: image.uri
+                    });
+
+                    image.width = image.thumb.width = size.width;
+                    image.height = image.thumb.height = size.height;
+                } else if (!image.thumb.width || !image.thumb.height) {
+
+                    let size = await this.getImageSize({
+                        uri: image.uri
+                    });
+
+                    image.thumb.width = size.width;
+                    image.thumb.height = size.height;
+                }
+
+                return image;
+            })) as Array<ImageInfo>;
+            images = images.concat(imagesAsync);
         }
 
         this.setState({
@@ -138,12 +181,6 @@ export default class ImageSelect extends React.PureComponent<ImageSelectProps, I
                                 extrapolate: 'clamp'
                             })
                         },
-                        // {
-                        //     rotateX: this.animatedValue.interpolate({
-                        //         inputRange: [0, 1, 2],
-                        //         outputRange: ['-90deg', '0deg', '0deg']
-                        //     })
-                        // }
                     ]
                 }}
                 pointerEvents={'box-none'}
@@ -161,13 +198,45 @@ export default class ImageSelect extends React.PureComponent<ImageSelectProps, I
                     <FlatList
                         data={this.state.images || []}
                         showsHorizontalScrollIndicator={false}
+                        ListEmptyComponent={props => {
+                            return (
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontFamily: 'System',
+                                            fontSize: 16,
+                                            textAlign: 'left'
+                                        }}
+                                    >
+                                        {"There are no images to display"}
+                                    </Text>
+                                </View>
+                            )
+                        }}
                         contentContainerStyle={{
-                            paddingLeft: width + 5
+                            flex: 1,
+                            paddingLeft: (this.state.images && this.state.images.length > 0) ? width + 5 : 0
                         }}
                         renderItem={({item}) => {
                             return (
                                 <TouchableOpacity
-                                    onPress={() => {
+                                    onPress={async () => {
+                                        if (!item.width || !item.height) {
+                                            animateGenericNative(this.animatedLoading, 1);
+
+                                            let size = await this.getImageSize({
+                                                uri: item.uri
+                                            });
+
+                                            item.width = size.width;
+                                            item.height = size.height;
+                                        }
                                         animateGenericNative(this.animatedValue, 2, result => {
                                             this.props.onSelect(item);
                                         });

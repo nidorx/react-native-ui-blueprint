@@ -29,7 +29,7 @@ function pixelToPoint(pixels: number) {
 }
 
 export type Guides = Array<{
-    position: number | string;
+    position: number;
     orientation: 'horizontal' | 'vertical';
     unit?: '%' | 'dp' | 'px';
     color?: string;
@@ -210,18 +210,10 @@ export default class Grid extends React.PureComponent<GridProps> {
                     guides.map((guide, index) => {
                         const pos = guide.position;
                         const position = guide.unit === 'dp'
-                            ? (
-                                typeof pos === 'number'
-                                    ? pos
-                                    : Number.parseFloat(pos)
-                            )
+                            ? pos
                             : guide.unit === '%'
                                 ? `${pos}%`
-                                : pixelToPoint(
-                                    typeof pos === 'number'
-                                        ? pos
-                                        : Number.parseInt(pos)
-                                );
+                                : pixelToPoint(pos);
 
                         return (
                             <View

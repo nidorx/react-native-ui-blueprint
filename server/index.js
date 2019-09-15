@@ -1,65 +1,51 @@
-const express = require('express');
-const multer = require('multer');
-const sharp = require('sharp');
 const fs = require('fs');
-const upload = multer({dest: __dirname + '/public/images'});
+const cors = require('cors');
+const path = require('path');
+const multer = require('multer');
+const express = require('express');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.static('public'));
 
-app.post('/upload', upload.single('image'), (req, res) => {
-    if (req.file) {
+if (!fs.existsSync('./public/images/')) {
+    fs.mkdirSync('./public/images/');
+}
 
-        let row = {
+if (!fs.existsSync('./public/images.json')) {
+    fs.writeFileSync('./public/images.json', JSON.stringify([]));
+}
+
+const imagesJson = require('./public/images.json');
+
+app.post('/upload', multer().single('image'), (req, res) => {
+    if (req.file) {
+        const ext = path.extname(req.file.originalname);
+
+        const imageName = 'i-' + (+new Date()) + ext;
+
+        let imageInfo = {
             thumb: {
-                name: '',
-                width: 0,
-                height: 0
+                uri: 'images/' + imageName,
+                width: undefined,
+                height: undefined
             },
-            width: 0,
-            height: 0,
-            name: req.file.filename,
-            title: req.file.originalname
+            width: undefined,
+            height: undefined,
+            uri: 'images/' + imageName,
+            title: req.file.originalname.replace(ext, '')
         };
 
-        sharp(req.file.path)
-            .metadata()
-            .then(function (metadata) {
-                row.width = metadata.width;
-                row.height = metadata.height;
+        fs.writeFileSync('./public/images/' + imageName, req.file.buffer);
 
-                // renaming
-                row.thumb.name = row.name + '-thumb.' + metadata.format
-                row.name = row.name + '.' + metadata.format;
+        imagesJson.push(imageInfo);
 
-                let newPath = req.file.path + '.' + metadata.format;
-                fs.renameSync(req.file.path, newPath);
-
-                // thumbnail
-                return sharp(newPath)
-                    .resize(300)
-                    .toFile(req.file.path + '-thumb.' + metadata.format)
-                    .then(info => {
-                        row.thumb.width = info.width;
-                        row.thumb.height = info.height;
-                    });
-            })
-            .then(() => {
-                var images = require('./public/images.json');
-                images.push(row);
-                fs.writeFileSync('./public/images.json', JSON.stringify(images));
-                res.redirect('/');
-            })
-            .catch(err => {
-                res.error(err);
-            });
-
-
-    } else {
-        throw 'error';
+        fs.writeFileSync('./public/images.json', JSON.stringify(imagesJson));
     }
+
+    res.redirect('/');
 });
 
 app.listen(PORT, () => {

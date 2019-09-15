@@ -4,12 +4,105 @@
     <meta charset="UTF-8">
     <title>React Native UI Blueprint - Server</title>
     <style>
+        *,
+        *:before,
+        *:after {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
         html, body {
             display: flex;
             flex: 1;
             height: 100%;
             padding: 0;
             margin: 0;
+            font-size: 12px;
+        }
+
+        body {
+            margin: 0;
+            color: #5a5a5a;
+        }
+
+        #left {
+            display: flex;
+            flex: 1;
+            background: #F2F2F2;
+            max-width: 200px;
+            border-right: 1px solid #E2E2E2;
+            padding: 10px 5px 10px 10px;
+            flex-direction: column;
+            overflow: hidden;
+            overflow-y: auto;
+        }
+
+        #content {
+            display: flex;
+            flex: 1;
+            background: #F9F9F9
+        }
+
+        #content > img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #images {
+            flex-direction: column;
+            display: flex;
+            flex: 1;
+            align-items: center;
+        }
+
+        #images > div {
+            width: 170px;
+        }
+
+        #images > div > img {
+            width: 170px;
+            object-fit: contain;
+        }
+
+        [type="file"] {
+            border: 0;
+            clip: rect(0, 0, 0, 0);
+            height: 1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute !important;
+            white-space: nowrap;
+            width: 1px;
+        }
+
+        [type="file"] + label {
+            background: #18A0FB;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            display: inline-block;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            outline: none;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s;
+            vertical-align: middle;
+            width: 100%;
+            text-align: center;
+        }
+
+        [type="file"]:focus + label,
+        [type="file"] + label:hover {
+            opacity: 0.8;
+        }
+
+        [type="file"]:focus + label {
+            outline: 1px dotted #000;
         }
     </style>
 </head>
@@ -17,20 +110,19 @@
 
 <div style="display: flex; flex: 1; background: pink">
 
-    <div style="display: flex; flex: 1; background: blue;max-width: 250px;">
+    <div id="left">
 
         <div>
-            <h1>Upload Image</h1>
-
             <form action="/upload" method="post" enctype="multipart/form-data">
-                <input type="file" accept="image/*" name="image">
-                <input type="submit" value="upload">
+                <input type="file" id="file" accept="image/*" name="image" onchange="submit()">
+                <label for="file"/>Upload a file</label>
             </form>
         </div>
+
         <div id="images">
         </div>
     </div>
-    <div style="display: flex; flex: 1; background: greenyellow" id="content">
+    <div id="content">
 
 
     </div>
@@ -38,12 +130,25 @@
 
 <script>
     (function () {
+        window.setImage = function (uri) {
+            document.getElementById('content').innerHTML = '<img src="' + uri + '">';
+        };
+
         fetch('/images.json')
             .then(function (resp) {
                 return resp.json()
             })
             .then(function (images) {
-                console.log(images);
+
+                let html = images.map(function (image) {
+                    return [
+                        '<div onclick="setImage(\'' + image.thumb.uri + '\')">',
+                        ' <img src="' + image.thumb.uri + '"/>',
+                        '</div>'
+                    ].join('');
+                }).join('');
+
+                document.getElementById('images').innerHTML = html;
             })
     })()
 </script>
