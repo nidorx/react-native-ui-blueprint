@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>React Native UI Blueprint - Server</title>
+    <style>
+        html, body {
+            display: flex;
+            flex: 1;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div style="display: flex; flex: 1; background: pink">
+
+    <div style="display: flex; flex: 1; background: blue;max-width: 250px;">
+
+        <div>
+            <h1>Upload Image</h1>
+
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" accept="image/*" name="image">
+                <input type="submit" value="upload">
+            </form>
+        </div>
+        <div id="images">
+        </div>
+    </div>
+    <div style="display: flex; flex: 1; background: greenyellow" id="content">
+
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        fetch('/images.json')
+            .then(function (resp) {
+                return resp.json()
+            })
+            .then(function (images) {
+                console.log(images);
+            })
+    })()
+</script>
+</body>
+</html>
