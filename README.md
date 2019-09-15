@@ -163,11 +163,11 @@ Displays vertical or horizontal guide lines with specific placement. Unlike the 
 
 By default Blueprint displays one vertical and one horizontal tab, both on 50% of the screen.
 
-You can completely remove the grid by passing false as parameter.
+You can completely remove the guides by passing false as parameter.
 
 ```jsx
 <Blueprint            
-    grid={false}
+    guides={false}
  >
     ...
 </Blueprint>
@@ -188,8 +188,15 @@ You can completely remove the grid by passing false as parameter.
 | `width` | `number` | `StyleSheet.hairlineWidth` (1 pixel) | Lets you set the line width |
 
 
-
 ### Ruler
+
+<div align="center">
+    <img src="./docs/ruler.png" />
+</div>
+
+Adds a scalable ruler to the screen. The ruler is useful for checking component size and distance from the edges of the screen.
+
+Allows you to change the unit of measurement to Pixel, [dp], or Percent.
 
 ### Zoom
 
