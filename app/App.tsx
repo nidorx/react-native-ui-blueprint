@@ -8,9 +8,12 @@ export default class App extends React.PureComponent {
         return (
             <Blueprint
                 // image={require('./assets/github.png')}
-                // image={{
-                //     uri: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png'
-                // }}
+                images={[
+                    require('./assets/wireframe-1.png'),
+                    require('./assets/wireframe-2.png'),
+                    require('./assets/wireframe-1.png'),
+                    require('./assets/wireframe-2.png')
+                ]}
             >
                 <StatusBar backgroundColor={'transparent'} translucent={true} barStyle="dark-content"/>
                 <View style={[StyleSheet.absoluteFill, {justifyContent: 'center', alignItems: 'center'}]}>
