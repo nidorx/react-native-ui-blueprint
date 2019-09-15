@@ -1,5 +1,12 @@
 import {Animated, Easing} from "react-native";
 
+
+export const tiny = 6;
+export const small = 12;
+export const base = 18;
+export const large = 36;
+export const extra = 48;
+
 /**
  * Efeito de animação genérica usada nos componentes
  *
