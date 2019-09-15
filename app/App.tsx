@@ -7,25 +7,24 @@ export default class App extends React.PureComponent {
     render() {
         return (
             <Blueprint
-
-                // grid={[
-                //     {
-                //         spacing: 30,
-                //
-                //     },
-                //     {
-                //         spacing: 60
-                //     }
-                // ]}
-
-
+                grid={false}
                 guides={[
                     {
-                        position: -10,
+                        position: 55,
                         orientation: 'vertical',
-                        unit: '%',
-                        color: 'green',
-                        width: 2
+                        unit: 'dp'
+                    },
+                    {
+                        position: 616,
+                        orientation: 'horizontal',
+                        unit: 'dp',
+                        color:'#ff4aff'
+                    },
+                    {
+                        position: 580,
+                        orientation: 'horizontal',
+                        unit: 'dp',
+                        color:'#ff4aff'
                     }
                 ]}
                 // image={require('./assets/github.png')}
