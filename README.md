@@ -188,7 +188,7 @@ You can completely remove the guides by passing false as parameter.
 
 ### Ruler
 
-<div align="left">
+<div align="center">
     <img src="./docs/ruler.png" />
     <img src="./docs/ruler.gif" />
 </div>
@@ -201,7 +201,7 @@ The ruler also allows you to change the sensitivity to work more accurately. The
 
 ### Ghost
 
-<div align="left">
+<div align="center">
     <img src="./docs/ghost.png" />
     <img src="./docs/ghost.gif" />
 </div>
@@ -254,7 +254,7 @@ If you know the full path of the screen images, just tell uri. Blueprint looks f
 
 #### Custom Server
 
-<div align="left">
+<div align="center">
     <img src="./docs/ghost-4.png" />
     <img src="./docs/ghost-slider.gif" />
 </div>
@@ -311,17 +311,24 @@ const imagesAsynck: () => Promise<Array<ImageInfoAsync>>;
 **Type**: `Array<number | ImageRequireSource>`
 
 | name | type | Description |
-|---|---|---|---|
+|---|---|---|
 | `uri` | `string` | `uri` is a string representing the resource identifier for the image, which could be an http address, a local file path, or the name of a static image resource (which should be wrapped in the `require('./path/to/image.png')` function). |
 | `width` | `number` | `width` and `height` can be specified if known at build time. |
 | `height` | `number` | `width` and `height` can be specified if known at build time. |
 
 
 
-
 ### Zoom
 
+<div align="center">
+    <img src="./docs/zoom.png" />
+    <img src="./docs/zoom.gif" />
+</div>
 
+
+One of the most powerful tools in the Blueprint suite, zooming is applied to your application and all other functionality.
+
+This allows you to work pixel by pixel on your screen, impressing everyone with the quality of your application.
 
 
 [dp]: https://en.wikipedia.org/wiki/Device-independent_pixel
