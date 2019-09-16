@@ -1,8 +1,8 @@
 {
     "name": "react-native-ui-blueprint",
-    "version": "0.1.0-pre.3",
+    "version": "0.1.0-pre.4",
     "description": "To develop pixel perfect apps.",
-    "main": "lib",
+    "main": "lib.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/nidorx/react-native-blueprint.git"
