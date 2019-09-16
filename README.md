@@ -360,7 +360,7 @@ Describe as much detail as possible to get the problem reproduced and eventually
 
 ## License
 
-This code is distributed under the terms and conditions of the [MIT license](LICENSE.md).
+This code is distributed under the terms and conditions of the [MIT license](LICENSE).
 
 
 [dp]: https://en.wikipedia.org/wiki/Device-independent_pixel
