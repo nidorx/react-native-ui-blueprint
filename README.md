@@ -32,7 +32,7 @@ yarn add react-native-ui-blueprint
 npm i react-native-ui-blueprint --save
 ```
 
-After that, simply encapsulate your application with Blueprint. And finally, tap the bottom left of the device to show Blueprint.
+After that, simply encapsulate your application with Blueprint and finally tap the bottom left of the device to show Blueprint.
 
 ```jsx
 import Blueprint from 'react-native-ui-blueprint';
@@ -126,7 +126,7 @@ The grid is created from the defined side.
     <img src="./docs/guide.png" />
 </div>
 
-Displays vertical or horizontal guide lines with specific placement. Unlike the grid, the tab does not repeat and allows you to work with three units of measurement: Pixel, [dp] and Percent.
+Displays vertical or horizontal guide lines with specific placement. Unlike the grid, the guides does not repeat and allows you to work with three units of measurement: pixel, [dp] and percent.
 
 ```jsx
 <Blueprint            
@@ -154,7 +154,7 @@ Displays vertical or horizontal guide lines with specific placement. Unlike the 
 </Blueprint>
 ```
 
-By default Blueprint displays one vertical and one horizontal tab, both on 50% of the screen.
+By default Blueprint displays one vertical and one horizontal line, both on 50% of the screen.
 
 You can completely remove the guides by passing false as parameter.
 
@@ -188,7 +188,7 @@ You can completely remove the guides by passing false as parameter.
 
 Adds a scalable ruler to the screen. The ruler is useful for checking component size and distance from the edges of the screen.
 
-Allows you to change the unit of measurement to Pixel, [dp], or Percent.
+Allows you to change the unit of measurement to pixel, [dp], or percent.
 
 The ruler also allows you to change the sensitivity to work more accurately. The values are toggled by `1`, `0.5` and `0.1`.
 
@@ -305,7 +305,7 @@ const imagesAsynck: () => Promise<Array<ImageInfoAsync>>;
 
 | name | type | Description |
 |---|---|---|
-| `uri` | `string` | `uri` is a string representing the resource identifier for the image, which could be an http address, a local file path, or the name of a static image resource (which should be wrapped in the `require('./path/to/image.png')` function). |
+| `uri` | `string` | `uri` is a string representing the resource identifier for the image, which could be an http address. |
 | `width` | `number` | `width` and `height` can be specified if known at build time. |
 | `height` | `number` | `width` and `height` can be specified if known at build time. |
 
@@ -330,7 +330,7 @@ This allows you to work pixel by pixel on your screen, impressing everyone with 
 
 Please use [GitHub issues] for feedback, questions or comments.
 
-If you have specific feature requests or would like to vote on what others are recommending, please go to the [GitHub issues] section as well. We would love to see what you are thinking.
+If you have specific feature requests or would like to vote on what others are recommending, please go to the [GitHub issues] section as well. I would love to see what you are thinking.
 
 ## Contributing
 
@@ -342,7 +342,7 @@ I'm not a native speaker of the English language, so you may have noticed a lot 
 
 You can FORK this project and suggest improvements to this document (https://github.com/nidorx/react-native-ui-blueprint/edit/master/README.md).
 
-If you find it more convenient, report a defect with the details on [GitHub issues].
+If you find it more convenient, report a issue with the details on [GitHub issues].
 
 ### Reporting Issues
 
