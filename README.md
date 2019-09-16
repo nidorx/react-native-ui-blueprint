@@ -172,8 +172,8 @@ You can completely remove the guides by passing false as parameter.
 | name | type | default | Description |
 |---|---|---|---|
 | `position` | `number`  | -- | The positioning of the guide. When the unit is pixel, expect an integer. |
-| `orientation` | `ENUM['horizontal', 'vertical']` | --| Sets the orientation of the guide |
-| `unit` | `ENUM['%', 'dp', 'px']` | `dp` | The unit of measurement used to set the guide position |
+| `orientation` | `horizontal` or `vertical` | --| Sets the orientation of the guide |
+| `unit` | `%`, `dp` or`px` | `dp` | The unit of measurement used to set the guide position |
 | `color` | `string` | `BLUE:#18A0FB`| Allows you to set the line color. |
 | `opacity` | `number` | `0.2 + $index * 0.1` | Allows you to set opacity. If not entered, the system automatically calculates a value starting with `0.2` and increasing by `0.1` |
 | `width` | `number` | `StyleSheet.hairlineWidth` (1 pixel) | Lets you set the line width |
