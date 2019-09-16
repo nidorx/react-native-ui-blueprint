@@ -8,18 +8,13 @@
         <a href="https://badge.fury.io/js/react-native-ui-blueprint">
             <img src="https://badge.fury.io/js/react-native-ui-blueprint.svg" alt="npm version">
         </a>
-        <a href="https://travis-ci.org/nidorx/react-native-ui-blueprint">
-            <img src="https://travis-ci.org/nidorx/react-native-ui-blueprint.svg?branch=master" alt="Build Status">
-        </a>
     </p>
 </div>
 
 <br>
 
-No more wrong margins, colors, text sizes and many other silly visual mistakes.
-
-React Native UI Blueprint allow to you implements a pixel-perfect design.
-
+No more wrong margins, text sizes and many other silly visual mistakes. **React Native UI Blueprint** allow to you implements a pixel-perfect design.
+ 
 <div align="center">
     <img src="./docs/features.png" />
 </div>
