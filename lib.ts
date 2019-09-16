@@ -1,14 +1,12 @@
-export {
-    default as Blueprint,
-    BlueprintProps,
-} from './src/lib/Blueprint';
+import Blueprint from './src/lib/Blueprint';
 
-export {
-    Guides,
-    GridLines
-} from './src/lib/Grid';
+export default Blueprint;
 
-export {
-    ImageInfoAsync
-} from './src/lib/ImageSelect';
+export {BlueprintProps} from './src/lib/Blueprint';
+
+export {Guides, GridLines} from './src/lib/Grid';
+
+export {ImageInfoAsync} from './src/lib/ImageSelect';
+
+
 
