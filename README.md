@@ -190,8 +190,9 @@ You can completely remove the guides by passing false as parameter.
 
 ### Ruler
 
-<div align="center">
+<div align="left">
     <img src="./docs/ruler.png" />
+    <img src="./docs/ruler.gif" />
 </div>
 
 Adds a scalable ruler to the screen. The ruler is useful for checking component size and distance from the edges of the screen.
