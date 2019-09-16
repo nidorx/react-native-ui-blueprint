@@ -7,30 +7,11 @@ export default class App extends React.PureComponent {
     render() {
         return (
             <Blueprint
-                grid={false}
-                guides={[
-                    {
-                        position: 55,
-                        orientation: 'vertical',
-                        unit: 'dp'
-                    },
-                    {
-                        position: 616,
-                        orientation: 'horizontal',
-                        unit: 'dp',
-                        color:'#ff4aff'
-                    },
-                    {
-                        position: 580,
-                        orientation: 'horizontal',
-                        unit: 'dp',
-                        color:'#ff4aff'
-                    }
-                ]}
                 // image={require('./assets/github.png')}
                 // images={[
-                //     require('./assets/wireframe-1.png'),
-                //     require('./assets/wireframe-2.png'),
+                //     {
+                //         uri: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Profilewireframe.png'
+                //     },
                 //     require('./assets/wireframe-1.png'),
                 //     require('./assets/wireframe-2.png')
                 // ]}

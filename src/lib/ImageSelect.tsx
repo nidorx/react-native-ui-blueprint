@@ -220,7 +220,7 @@ export default class ImageSelect extends React.PureComponent<ImageSelectProps, I
                             )
                         }}
                         contentContainerStyle={{
-                            flex: 1,
+                            flex: (this.state.images && this.state.images.length > 0) ? undefined : 1,
                             paddingLeft: (this.state.images && this.state.images.length > 0) ? width + 5 : 0
                         }}
                         renderItem={({item}) => {

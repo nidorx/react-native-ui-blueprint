@@ -176,8 +176,6 @@ You can completely remove the guides by passing false as parameter.
 #### Guide Properties
 
 
-
-
 | name | type | default | Description |
 |---|---|---|---|
 | `position` | `number`  | -- | The positioning of the guide. When the unit is pixel, expect an integer. |
@@ -201,9 +199,129 @@ Allows you to change the unit of measurement to Pixel, [dp], or Percent.
 
 The ruler also allows you to change the sensitivity to work more accurately. The values are toggled by `1`, `0.5` and `0.1`.
 
+### Ghost
+
+<div align="left">
+    <img src="./docs/ghost.png" />
+    <img src="./docs/ghost.gif" />
+</div>
+
+Allows developers and designers put a semi-transparent image overlay over the top of the developed App and perform pixel perfect comparison between them.
+
+
+You can add local files or configure remote calls asynchronously. With remote calling, you can implement integrations with any Wireframe system that provides an API.
+
+
+#### Local files
+
+<div align="center">
+    <img src="./docs/ghost-2.png" />
+</div>
+
+```jsx
+<Blueprint            
+    images={[
+        require('./assets/wireframe-1.png'),
+        require('./assets/wireframe-2.png')
+    ]}
+ >
+    ...
+</Blueprint>
+```
+
+#### Remote files
+
+<div align="center">
+    <img src="./docs/ghost-3.png" />
+</div>
+
+If you know the full path of the screen images, just tell uri. Blueprint looks for information about the height and width of the images.
+
+
+```jsx
+<Blueprint            
+    images={[
+       {
+           uri: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Profilewireframe.png'
+       },
+        require('./assets/wireframe-1.png'),
+        require('./assets/wireframe-2.png')
+    ]}
+ >
+    ...
+</Blueprint>
+```
+
+#### Custom Server
+
+<div align="left">
+    <img src="./docs/ghost-4.png" />
+    <img src="./docs/ghost-slider.gif" />
+</div>
+
+
+You can also use some private image server. An example implementation, with node.js, is available in the "server" folder.
+
+External integration allows the use of any image service that provides an API for listing and viewing images.
+
+You can look for documentation from services like [Zeplin](https://zeplin.io/) or [Figma](https://www.figma.com/) to do your integrations.
+
+
+For integration, simply implement an asynchronous function in the `imagesAsync` property.
+
+**Type**
+```jsx        
+type ImageInfoAsync = {
+    thumb?: {
+        uri: string;
+        width?: number;
+        height?: number;
+    };
+    uri: string;
+    width?: number;
+    height?: number;
+    title?: string;
+};
+
+const imagesAsynck: () => Promise<Array<ImageInfoAsync>>; 
+```
+
+**Sample**
+```jsx
+<Blueprint            
+    imagesAsync={() => {
+        const server = 'http://localhost:3000';
+        return fetch(`${server}/images.json`)
+            .then(resp => resp.json())
+            .then(images => {
+                images.forEach((image: any) => {
+                    image.uri = `${server}/${image.uri}`;
+                    image.thumb.uri = `${server}/${image.thumb.uri}`;
+                });
+                return images;
+            });
+    }}
+ >
+    ...
+</Blueprint>
+```
+
+#### Image Properties
+
+**Type**: `Array<number | ImageRequireSource>`
+
+| name | type | Description |
+|---|---|---|---|
+| `uri` | `string` | `uri` is a string representing the resource identifier for the image, which could be an http address, a local file path, or the name of a static image resource (which should be wrapped in the `require('./path/to/image.png')` function). |
+| `width` | `number` | `width` and `height` can be specified if known at build time. |
+| `height` | `number` | `width` and `height` can be specified if known at build time. |
+
+
+
+
 ### Zoom
 
-### Ghost
+
 
 
 [dp]: https://en.wikipedia.org/wiki/Device-independent_pixel
