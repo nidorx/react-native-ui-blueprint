@@ -205,12 +205,10 @@ const DragCorner = (props: { ruler: RulerType, right?: boolean, bottom?: boolean
     )
 };
 
-export type RulerProps = {};
-
 /**
  * Add guidelines on screen
  */
-export default class Ruler extends React.PureComponent<RulerProps> {
+export default class Ruler extends React.PureComponent {
 
     private ruler: any;
 

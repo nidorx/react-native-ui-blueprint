@@ -7,13 +7,13 @@ export default class App extends React.PureComponent {
     render() {
         return (
             <Blueprint
-                images={[
-                    {
-                        uri: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Profilewireframe.png'
-                    },
-                    require('./assets/wireframe-1.png'),
-                    require('./assets/wireframe-2.png')
-                ]}
+                // images={[
+                //     {
+                //         uri: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Profilewireframe.png'
+                //     },
+                //     require('./assets/wireframe-1.png'),
+                //     require('./assets/wireframe-2.png')
+                // ]}
                 // imagesAsync={() => {
                 //     const server = 'http://localhost:3000';
                 //     return fetch(`${server}/images.json`)

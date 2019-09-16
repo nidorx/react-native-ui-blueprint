@@ -68,7 +68,6 @@ rimraf('./dist', {}, function (err) {
 
     exec('npm run build-ts')
         .then(cp.bind(undefined, './package.json', './dist/package.json'))
-        .then(cp.bind(undefined, './react-native.config.js', './dist/react-native.config.js'))
         .then(cp.bind(undefined, './README.md', './dist/README.md'))
         .then(cp.bind(undefined, './LICENSE', './dist/LICENSE'))
         .then(cp.bind(undefined, './src/assets/', './dist/src/assets/'))

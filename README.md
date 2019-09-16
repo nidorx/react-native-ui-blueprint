@@ -83,9 +83,9 @@ When working in teams, designers often use grid, use this tool to verify design 
 </Blueprint>
 ```
 
-By default, Blueprint already defines two grids with 8 and 24 dp spacing.
+By default, Blueprint already defines two grids with 8 and 24 [dp] spacing.
 
-You can completely remove the grid by passing false as parameter.
+You can completely remove the grid by passing `false` as parameter.
 
 ```jsx
 <Blueprint            
