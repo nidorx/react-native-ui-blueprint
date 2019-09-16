@@ -8,7 +8,7 @@ const semver = require('semver');
 var options = {
     hostname: 'registry.npmjs.org',
     port: 80,
-    path: '/react-native-colibri',
+    path: '/react-native-ui-blueprint',
     method: 'GET',
     headers: {
         'Accept': 'application/json'
@@ -57,7 +57,7 @@ var req = http.request(options, function (res) {
             version = semver.inc(release, 'preminor', 'pre');
         }
 
-        console.log('Incrementing react-native-colibri version to: "' + version + '"');
+        console.log('Incrementing react-native-ui-blueprint version to: "' + version + '"');
 
         var packageJson = require('./package.json');
 

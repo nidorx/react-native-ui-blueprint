@@ -1,8 +1,8 @@
 platform :ios, '9.0'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-target 'ColibriApp' do
-  # Pods for ColibriApp
+target 'BlueprintApp' do
+  # Pods for BlueprintApp
   pod 'React', :path => '../node_modules/react-native/'
   pod 'React-Core', :path => '../node_modules/react-native/React'
   pod 'React-DevSupport', :path => '../node_modules/react-native/React'
@@ -27,7 +27,7 @@ target 'ColibriApp' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
-  target 'ColibriAppTests' do
+  target 'BlueprintAppTests' do
     inherit! :search_paths
     # Pods for testing
   end
@@ -35,10 +35,10 @@ target 'ColibriApp' do
   use_native_modules!
 end
 
-target 'ColibriApp-tvOS' do
-  # Pods for ColibriApp-tvOS
+target 'BlueprintApp-tvOS' do
+  # Pods for BlueprintApp-tvOS
 
-  target 'ColibriApp-tvOSTests' do
+  target 'BlueprintApp-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end
