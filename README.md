@@ -20,6 +20,10 @@ No more wrong margins, colors, text sizes and many other silly visual mistakes.
 
 React Native UI Blueprint allow to you implements a pixel-perfect design.
 
+<div align="center">
+    <img src="./docs/features.png" />
+</div>
+
 
 ## Installation
 
@@ -55,17 +59,11 @@ export default class App extends React.PureComponent {
 }
 ```
 
-## Features
-
-<div align="center">
-    <img src="./docs/features.png" />
-</div>
-
-### Reload
+## Reload
 
 For those who are too lazy to shake the phone, when running Packager (on port 8081), lets you reload the application.
 
-### Grid
+## Grid
 
 <div align="center">
     <img src="./docs/grid.png" />
@@ -102,23 +100,23 @@ You can completely remove the grid by passing false as parameter.
 </Blueprint>
 ```
 
-#### Alignment
+### Alignment
 
 There are 4 horizontal alignment options:
 
-##### Side
+#### Side
  
 The grid is created from the side, respecting the defined spacing. Useful for validating component spacings and side positions.
 
-##### Center
+#### Center
 
 The grid is created from the center of the screen, respecting the defined spacing. Used to check centralized alignment of components.
 
-##### Left and Right
+#### Left and Right
 
 The grid is created from the defined side.
 
-#### Grid Properties
+### Grid Properties
 
 | name | type | default | Description |
 |---|---|---|---|
@@ -127,7 +125,7 @@ The grid is created from the defined side.
 | `opacity` | `number` | `0.2 + $index * 0.1` | Allows you to set opacity. If not entered, the system automatically calculates a value starting with `0.2` and increasing by `0.1` |
 | `width` | `number` | `StyleSheet.hairlineWidth` (1 pixel) | Lets you set the line width |
 
-### Guide
+## Guides
 
 <div align="center">
     <img src="./docs/guide.png" />
@@ -173,7 +171,7 @@ You can completely remove the guides by passing false as parameter.
 </Blueprint>
 ```
 
-#### Guide Properties
+### Guides Properties
 
 
 | name | type | default | Description |
@@ -186,7 +184,7 @@ You can completely remove the guides by passing false as parameter.
 | `width` | `number` | `StyleSheet.hairlineWidth` (1 pixel) | Lets you set the line width |
 
 
-### Ruler
+## Ruler
 
 <div align="center">
     <img src="./docs/ruler.png" />
@@ -199,7 +197,7 @@ Allows you to change the unit of measurement to Pixel, [dp], or Percent.
 
 The ruler also allows you to change the sensitivity to work more accurately. The values are toggled by `1`, `0.5` and `0.1`.
 
-### Ghost
+## Ghost
 
 <div align="center">
     <img src="./docs/ghost.png" />
@@ -212,7 +210,7 @@ Allows developers and designers put a semi-transparent image overlay over the to
 You can add local files or configure remote calls asynchronously. With remote calling, you can implement integrations with any Wireframe system that provides an API.
 
 
-#### Local files
+### Local files
 
 <div align="center">
     <img src="./docs/ghost-2.png" />
@@ -229,7 +227,7 @@ You can add local files or configure remote calls asynchronously. With remote ca
 </Blueprint>
 ```
 
-#### Remote files
+### Remote files
 
 <div align="center">
     <img src="./docs/ghost-3.png" />
@@ -252,7 +250,7 @@ If you know the full path of the screen images, just tell uri. Blueprint looks f
 </Blueprint>
 ```
 
-#### Custom Server
+### Custom Server
 
 <div align="center">
     <img src="./docs/ghost-4.png" />
@@ -306,7 +304,7 @@ const imagesAsynck: () => Promise<Array<ImageInfoAsync>>;
 </Blueprint>
 ```
 
-#### Image Properties
+### Image Properties
 
 **Type**: `Array<number | ImageRequireSource>`
 
@@ -318,7 +316,7 @@ const imagesAsynck: () => Promise<Array<ImageInfoAsync>>;
 
 
 
-### Zoom
+## Zoom
 
 <div align="center">
     <img src="./docs/zoom.png" />
