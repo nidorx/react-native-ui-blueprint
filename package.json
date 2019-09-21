@@ -1,6 +1,6 @@
 {
     "name": "react-native-ui-blueprint",
-    "version": "0.1.0",
+    "version": "0.2.0-pre.0",
     "description": "To develop pixel perfect apps.",
     "main": "lib.js",
     "repository": {
