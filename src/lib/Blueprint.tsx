@@ -35,7 +35,7 @@ export type BlueprintProps = {
     /**
      * Add guides on screen. Percentual, points or pixel. Ex. v50%, h50%, v10px, v10p
      */
-    guides?: Guides| false;
+    guides?: Guides | false;
 
     /**
      * Allows you to add regularly spaced marker lines on the screen
@@ -350,45 +350,59 @@ export default class Blueprint extends React.PureComponent<BlueprintProps, Bluep
                     ]}
                     pointerEvents={'box-none'}
                 >
-                    {/* Content */}
-                    {this.props.children}
 
+                    {/* Content */}
+                    <View style={StyleSheet.absoluteFill} pointerEvents={'auto'}>
+                        {this.props.children}
+                    </View>
 
                     {
                         this.state.image
                             ? (
-                                <Animated.Image
-                                    source={this.state.image}
-                                    style={{
-                                        width: screenWidth,
-                                        height: screenHeight,
-                                        resizeMode: 'contain',
-                                        opacity: this.imageOpacityValue.interpolate({
-                                            inputRange: [0, MAX_SLIDER_VALUE],
-                                            outputRange: [0, 1]
-                                        }),
-                                        transform: [
+                                <Animated.View
+                                    style={[
+                                        StyleSheet.absoluteFill,
+                                        {
+                                            opacity: this.imageOpacityValue.interpolate({
+                                                inputRange: [0, MAX_SLIDER_VALUE],
+                                                outputRange: [0, 1]
+                                            }),
+                                            transform: [
+                                                {
+                                                    scale: this.imageScaleValue.interpolate({
+                                                        inputRange: [0, MAX_SLIDER_VALUE],
+                                                        outputRange: [0.3, 2]
+                                                    })
+                                                },
+                                                {
+                                                    translateX: this.imageXValue.interpolate({
+                                                        inputRange: [-screenWidth, screenWidth],
+                                                        outputRange: [-screenWidth, screenWidth]
+                                                    })
+                                                },
+                                                {
+                                                    translateY: this.imageYValue.interpolate({
+                                                        inputRange: [-screenHeight, screenHeight],
+                                                        outputRange: [-screenHeight, screenHeight]
+                                                    })
+                                                }
+                                            ]
+                                        }
+                                    ]}
+                                    pointerEvents={'none'}
+                                >
+                                    <Image
+                                        source={this.state.image}
+                                        style={[
+                                            StyleSheet.absoluteFill,
                                             {
-                                                scale: this.imageScaleValue.interpolate({
-                                                    inputRange: [0, MAX_SLIDER_VALUE],
-                                                    outputRange: [0.3, 2]
-                                                })
-                                            },
-                                            {
-                                                translateX: this.imageXValue.interpolate({
-                                                    inputRange: [-screenWidth, screenWidth],
-                                                    outputRange: [-screenWidth, screenWidth]
-                                                })
-                                            },
-                                            {
-                                                translateY: this.imageYValue.interpolate({
-                                                    inputRange: [-screenHeight, screenHeight],
-                                                    outputRange: [-screenHeight, screenHeight]
-                                                })
+                                                width: screenWidth,
+                                                height: screenHeight,
+                                                resizeMode: 'contain'
                                             }
-                                        ]
-                                    }}
-                                />
+                                        ]}
+                                    />
+                                </Animated.View>
                             )
                             : null
                     }

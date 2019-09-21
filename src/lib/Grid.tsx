@@ -205,7 +205,7 @@ export default class Grid extends React.PureComponent<GridProps> {
         }
 
         return (
-            <View style={StyleSheet.absoluteFill} pointerEvents={'box-none'}>
+            <View style={StyleSheet.absoluteFill} pointerEvents={'none'}>
                 {
                     guides.map((guide, index) => {
                         const pos = guide.position;
